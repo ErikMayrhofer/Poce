@@ -6,10 +6,10 @@ import cv2
 import numpy as np
 import pygame
 
-from apps.facepong2.pongFaceDetector import PongFaceDetector
-from apps.facepong2.pongPhysics import PongPhysics
-from apps.facepong2.pongConfig import CONFIG
-from apps.facepong2.pongRenderer import PongRenderer, TextAlign
+from src.pongFaceDetector import PongFaceDetector
+from src.pongPhysics import PongPhysics
+from src.pongConfig import CONFIG
+from src.pongRenderer import PongRenderer, TextAlign
 
 
 class PongGame:

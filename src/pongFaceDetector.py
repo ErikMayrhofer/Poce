@@ -1,7 +1,7 @@
 import cv2
 
-import robolib.modelmanager.downloader as downloader
-from apps.facepong2.pongConfig import CONFIG
+import src.downloader as downloader
+from src.pongConfig import CONFIG
 
 PONG_FACE_DETECTOR_DEBUG = CONFIG.debug.face_detector_debug
 

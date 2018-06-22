@@ -1,5 +1,5 @@
 # from apps.facepong import camOpener
-from apps.facepong2.pongGame import PongGame
+from src.pongGame import PongGame
 
 PongGame().run()
 

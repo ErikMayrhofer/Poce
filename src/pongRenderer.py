@@ -3,7 +3,7 @@ import pygame.gfxdraw
 import numpy as np
 import os
 import cv2
-from apps.facepong2.pongConfig import CONFIG
+from src.pongConfig import CONFIG
 from enum import Enum
 
 

@@ -1,9 +1,9 @@
 import pymunk
-import abc
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 import numpy as np
 import random
-from apps.facepong2.pongConfig import CONFIG
+from src.pongConfig import CONFIG
+
 
 class PhysicsObject(metaclass=ABCMeta):
     def __init__(self):
