@@ -1,0 +1,56 @@
+//
+// Created by obyoxar on 27.08.18.
+//
+
+#include "VideoSource.h"
+#include <cstring>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+
+VideoSource::VideoSource(cv::Size size) : capture(0), targetSize(size){
+    assert(this->capture.isOpened());
+}
+
+VideoSource::~VideoSource() {
+    capture.release();
+}
+
+void VideoSource::refresh() {
+    this->capture >> this->currentMat;
+    cv::resize(this->currentMat, this->currentMat, this->targetSize);
+    cv::cvtColor(this->currentMat, this->currentMat, CV_BGR2RGB);
+}
+
+const uchar *VideoSource::getData() const {
+    return this->currentMat.data;
+}
+
+void VideoSource::copyTo(void *destination) const {
+    std::memcpy(destination, getData(), this->totalBytes());
+}
+
+size_t VideoSource::totalBytes() const {
+    return this->currentMat.total() * this->currentMat.elemSize();
+}
+
+void VideoSource::copyTo(Buffer<uchar> &buffer, bool allowResize) const {
+    buffer.write(this->getData(), this->totalBytes(), allowResize);
+}
+
+void VideoSource::fetchTo(void *destination) {
+    refresh();
+    copyTo(destination);
+}
+
+void VideoSource::fetchTo(Buffer<uchar> &buffer, bool allowResize) {
+    refresh();
+    copyTo(buffer, allowResize);
+}
+
+const cv::VideoCapture &VideoSource::getCapture() const {
+    return capture;
+}
+
+const cv::Mat VideoSource::getMat() const {
+    return currentMat;
+}
