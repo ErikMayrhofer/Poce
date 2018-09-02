@@ -14,7 +14,7 @@ find_package(Boost REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${GLFW_INCLUDE_DIR})
 add_executable(PoceExp
-        linmath.h Shader.cpp Shader.h ShaderProgram.cpp ShaderProgram.h
+        Shader.cpp Shader.h ShaderProgram.cpp ShaderProgram.h
         VideoSource.cpp VideoSource.h Buffer.h main.cpp gltypemap.h gltypemap.cpp
         Texture.h VideoTexture.cpp VideoTexture.h Texture.cpp
         FaceDetector.cpp FaceDetector.h monitoring.h Window.cpp Window.h App.cpp App.h

@@ -14,7 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-struct xyuv {
+struct XYUV {
     float x, y;
     float u, v;
 };
@@ -43,7 +43,7 @@ private:
     GLuint vpos_location;
     GLuint tex_attrib;
 
-    xyuv vertices[4] =
+    XYUV vertices[4] =
             {
                     {  0.f,  0.f,  0.f,  0.f },
                     {  0.f,  1.f,  0.f,  1.f },

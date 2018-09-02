@@ -73,7 +73,7 @@ unsigned char getFreeTextureUnit();
 template <typename T>
 class Texture {
 public:
-    Texture(ColorMode mode);
+    explicit Texture(ColorMode mode);
     Texture(ColorMode mode, unsigned char textureUnit);
     ~Texture();
 
@@ -98,12 +98,12 @@ public:
     inline GLuint getGLTextureUnit();
 
 private:
-    ColorMode colorMode;
-    unsigned char textureUnit;
-    GLuint textureHandle;
+    ColorMode colorMode = ColorMode::RGB;
+    unsigned char textureUnit = 0;
+    GLuint textureHandle = 0;
 };
 
-template<typename T>
+template<typename T>  // NOLINT(cppcoreguidelines-pro-type-member-init)
 Texture<T>::Texture(ColorMode mode) :
         Texture(mode, getFreeTextureUnit()) {}
 
@@ -119,7 +119,7 @@ colorMode(mode), textureUnit(textureUnit), textureHandle(0) {
 
 template<typename T>
 void Texture<T>::bind() {
-    glActiveTexture(getGLTextureUnit(), textureHandle);
+    glActiveTexture(getGLTextureUnit());
     glBindTexture(GL_TEXTURE_2D, textureHandle);
 }
 
@@ -146,10 +146,10 @@ GLenum Texture<T>::getGLDataType() const {
     return toGLType<T>();
 }
 
-#define PARAM_SETTER(localname, glname, argumenttype, settertype) \
+#define PARAM_SETTER(localName, glName, argumentType, setterType) \
 template<typename T> \
-void Texture<T>::localname(argumenttype value) { \
-    glTexParameter##settertype(GL_TEXTURE_2D, glname, (GLint) value); \
+void Texture<T>::localName(argumentType value) { \
+    glTexParameter##setterType(GL_TEXTURE_2D, glName, (GLint) value); \
 }
 
 PARAM_SETTER(setWrapS, GL_TEXTURE_WRAP_S, WrapMode, i)

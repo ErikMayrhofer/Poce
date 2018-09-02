@@ -4,8 +4,8 @@
 // Created by obyoxar on 15.08.18.
 //
 
-#ifndef POCEEXP_OSHADERPROGRAM_H
-#define POCEEXP_OSHADERPROGRAM_H
+#ifndef POCEEXP_O_SHADER_PROGRAM_H
+#define POCEEXP_O_SHADER_PROGRAM_H
 
 
 #include <string>
@@ -47,4 +47,4 @@ void ShaderProgram::bindUBOTo(Buffer<T> &ubo, std::string name, GLuint bindingPo
     glUniformBlockBinding(this->program, block_index, bindingPointIndex);
 }
 
-#endif //POCEEXP_OSHADERPROGRAM_H
+#endif //POCEEXP_O_SHADER_PROGRAM_H

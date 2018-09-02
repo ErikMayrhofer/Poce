@@ -2,8 +2,8 @@
 // Created by obyoxar on 15.08.18.
 //
 
-#ifndef POCEEXP_OSHADER_H
-#define POCEEXP_OSHADER_H
+#ifndef POCEEXP_O_SHADER_H
+#define POCEEXP_O_SHADER_H
 
 
 #include <fstream>
@@ -31,4 +31,4 @@ private:
 };
 
 
-#endif //POCEEXP_OSHADER_H
+#endif //POCEEXP_O_SHADER_H

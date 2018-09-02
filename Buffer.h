@@ -97,8 +97,8 @@ void Buffer<U>::write(const void *data, size_t amount, bool allowResize, void *)
         glBufferData(this->type, amount, data, this->mode);
         this->unbind();
     }else{
-        auto pbomap = this->map<void>(MapMode::WriteOnly);
-        memcpy(pbomap, data, amount);
+        auto pbo_map = this->map<void>(MapMode::WriteOnly);
+        memcpy(pbo_map, data, amount);
         unmap();
     }
 }

@@ -11,24 +11,22 @@ FaceDetector::FaceDetector(std::string modelPath) : pose_model(){
     deserialize(modelPath) >> pose_model;
 }
 
-FaceDetector::~FaceDetector() {
-    std::cout << "HI" << std::endl;
-};
+FaceDetector::~FaceDetector() = default;;
 
 std::vector<FaceDetector::Rect> FaceDetector::detectOutlines(cv_image<rgb_pixel> image) {
-    std::vector<rectangle> rects = detector(image);
-    return rects;
+    std::vector<rectangle> rectangles = detector(image);
+    return rectangles;
 }
 
 std::vector<FaceDetector::Point> FaceDetector::detectNoses(cv::Mat image, cv::Size viewSize) {
     cv::Mat scaled;
     cv::resize(image, scaled, viewSize);
-    cv_image<rgb_pixel> cimg(scaled);
-    auto dets = this->detectOutlines(cimg);
-    std::vector<FaceDetector::Point> noses(dets.size());
+    cv_image<rgb_pixel> dlibImage(scaled);
+    auto detections = this->detectOutlines(dlibImage);
+    std::vector<FaceDetector::Point> noses(detections.size());
     auto noseIterator = noses.begin();
-    for (const auto &face : dets){
-        full_object_detection detection = pose_model(cimg, face);
+    for (const auto &face : detections){
+        full_object_detection detection = pose_model(dlibImage, face);
         dlib::point noseTip = detection.part(33);
         *(noseIterator++) = FaceDetector::Point(
                 noseTip.x() / (float)viewSize.width,
@@ -37,9 +35,4 @@ std::vector<FaceDetector::Point> FaceDetector::detectNoses(cv::Mat image, cv::Si
     }
     return noses;
 }
-/*
-std::vector<point> FaceDetector::detectFeatures(cv::Mat image, rectangle) {
-    full_object_detection detection = pose_model(cimg, face);
-}
-*/
 

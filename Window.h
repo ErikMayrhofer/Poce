@@ -2,8 +2,8 @@
 // Created by obyoxar on 02.09.18.
 //
 
-#ifndef DLIBTEST_POCEWINDOW_H
-#define DLIBTEST_POCEWINDOW_H
+#ifndef DLIBTEST_POCE_WINDOW_H
+#define DLIBTEST_POCE_WINDOW_H
 
 
 #include <string>
@@ -30,4 +30,4 @@ private:
 };
 
 
-#endif //DLIBTEST_POCEWINDOW_H
+#endif //DLIBTEST_POCE_WINDOW_H

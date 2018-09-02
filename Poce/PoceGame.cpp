@@ -7,7 +7,7 @@
 glm::mat4x4 calculateMVP(int width, int height, float vpWidth, float vpHeight){
     glViewport(0, 0, width, height);
     glClear(GL_COLOR_BUFFER_BIT);
-    glm::mat4x4 p, m, mvp;
+    glm::mat4 p, m, mvp;
     m = glm::mat4(1.0f);
     p = glm::ortho(-0.f, vpWidth, vpHeight, -0.f, 1.f, -1.f);
     mvp = p * m;

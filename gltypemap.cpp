@@ -4,9 +4,9 @@
 
 #include "gltypemap.h"
 
-#define MAPGLTYPE(type, gltype) template <> GLenum toGLType<type>(){return gltype;}
+#define MAP_GL_TYPE(type, gl_type) template <> GLenum toGLType<type>(){return gl_type;}
 
-MAPGLTYPE(float, GL_FLOAT)
-MAPGLTYPE(unsigned char, GL_UNSIGNED_BYTE)
+MAP_GL_TYPE(float, GL_FLOAT)
+MAP_GL_TYPE(unsigned char, GL_UNSIGNED_BYTE)
 
-#undef MAPGLTYPE
+#undef MAP_GL_TYPE

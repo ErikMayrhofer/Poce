@@ -13,7 +13,7 @@ void __key_callback_fun(GLFWwindow* window, int key, int scancode, int action, i
     if(windowMapping.find(window) != windowMapping.end()){
         windowMapping[window]->keyDown(key, scancode, action, mods);
     }else{
-        throw std::runtime_error("Got keyevent in unknown window!");
+        throw std::runtime_error("Got keyEvent in unknown window!");
     }
 }
 

@@ -2,8 +2,8 @@
 // Created by obyoxar on 28.08.18.
 //
 
-#ifndef POCEEXP_VIDEOTEXTURE_H
-#define POCEEXP_VIDEOTEXTURE_H
+#ifndef POCEEXP_VIDEO_TEXTURE_H
+#define POCEEXP_VIDEO_TEXTURE_H
 
 
 #include <opencv2/core/types.hpp>
@@ -29,4 +29,4 @@ private:
 };
 
 
-#endif //POCEEXP_VIDEOTEXTURE_H
+#endif //POCEEXP_VIDEO_TEXTURE_H

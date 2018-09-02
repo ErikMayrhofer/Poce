@@ -38,17 +38,17 @@ int main()
             MONITOR("CameraUpdate", now)
 
 
-            cv_image<bgr_pixel> cimg(temp);
+            cv_image<bgr_pixel> dlibImage(temp);
 
             auto now = std::chrono::system_clock::now();
-            std::vector<rectangle> dets = detector(cimg);
+            std::vector<rectangle> detections = detector(dlibImage);
             auto diff = std::chrono::system_clock::now() - now;
 
             MONITOR("Detect", now);
 
             std::vector<dlib::point> noses;
-            for (const auto &face : dets){
-                full_object_detection detection = pose_model(cimg, face);
+            for (const auto &face : detections){
+                full_object_detection detection = pose_model(dlibImage, face);
                 dlib::point noseTip = detection.part(33);
                 cv::Point pos = cv::Point2d(noseTip.x(), noseTip.y());
                 cv::circle(temp, pos, 10, cv::Scalar(255, 255, 255));
