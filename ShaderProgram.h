@@ -10,13 +10,13 @@
 
 #include <string>
 #include <vector>
-#include "OShader.h"
+#include "Shader.h"
 #include "Buffer.h"
 
-class OShaderProgram {
+class ShaderProgram {
 public:
-    OShaderProgram();
-    OShaderProgram(std::string vertex, std::string fragment);
+    ShaderProgram();
+    ShaderProgram(std::string vertex, std::string fragment);
     void attach(std::string filename, ShaderType type);
     bool link();
     bool isGood();
@@ -33,14 +33,14 @@ public:
 
 private:
     void requireGood();
-    void attach(OShader shader);
+    void attach(Shader shader);
     GLuint program;
-    std::vector<OShader> shaders;
+    std::vector<Shader> shaders;
     bool good;
 };
 
 template<typename T>
-void OShaderProgram::bindUBOTo(Buffer<T> &ubo, std::string name, GLuint bindingPointIndex) {
+void ShaderProgram::bindUBOTo(Buffer<T> &ubo, std::string name, GLuint bindingPointIndex) {
     assert(ubo.getType() == Uniform);
     GLuint block_index = this->getUniformBlockIndex(std::move(name));
     ubo.bind(bindingPointIndex);

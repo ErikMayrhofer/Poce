@@ -30,7 +30,10 @@ std::vector<FaceDetector::Point> FaceDetector::detectNoses(cv::Mat image, cv::Si
     for (const auto &face : dets){
         full_object_detection detection = pose_model(cimg, face);
         dlib::point noseTip = detection.part(33);
-        *(noseIterator++) = FaceDetector::Point(noseTip.x(), noseTip.y());
+        *(noseIterator++) = FaceDetector::Point(
+                noseTip.x() / (float)viewSize.width,
+                noseTip.y() / (float)viewSize.height
+                );
     }
     return noses;
 }

@@ -7,25 +7,25 @@
 //
 
 #include <iostream>
-#include "OShaderProgram.h"
+#include "ShaderProgram.h"
 #include <iostream>
 
-OShaderProgram::OShaderProgram() : program(glCreateProgram()) {
+ShaderProgram::ShaderProgram() : program(glCreateProgram()) {
     if(this->program == 0){
         throw std::runtime_error("Couldn't create ShaderProgram.");
     }
 }
 
-void OShaderProgram::attach(OShader shader) {
+void ShaderProgram::attach(Shader shader) {
     this->shaders.push_back(shader);
     glAttachShader(this->program, shader.getGLShaderReference());
 }
 
-void OShaderProgram::attach(std::string filename, ShaderType type) {
-    attach(OShader(std::move(filename), type));
+void ShaderProgram::attach(std::string filename, ShaderType type) {
+    attach(Shader(std::move(filename), type));
 }
 
-bool OShaderProgram::link() {
+bool ShaderProgram::link() {
     glLinkProgram(program);
     GLint link_ok;
     glGetProgramiv(program, GL_LINK_STATUS, &link_ok);
@@ -47,17 +47,17 @@ bool OShaderProgram::link() {
     return isGood();
 }
 
-bool OShaderProgram::isGood() {
+bool ShaderProgram::isGood() {
     return this->good;
 }
 
-OShaderProgram::OShaderProgram(std::string vertex, std::string fragment) : OShaderProgram()  {
+ShaderProgram::ShaderProgram(std::string vertex, std::string fragment) : ShaderProgram()  {
     attach(std::move(vertex), ShaderType::VERTEX_SHADER);
     attach(std::move(fragment), ShaderType::FRAGMENT_SHADER);
     link();
 }
 
-GLuint OShaderProgram::getUniformLocation(std::string name) {
+GLuint ShaderProgram::getUniformLocation(std::string name) {
     requireGood();
     GLint loc = glGetUniformLocation(this->program, name.c_str());
     if(loc < 0){
@@ -66,7 +66,7 @@ GLuint OShaderProgram::getUniformLocation(std::string name) {
     return (GLuint) loc;
 }
 
-GLuint OShaderProgram::getAttribLocation(std::string name) {
+GLuint ShaderProgram::getAttribLocation(std::string name) {
     requireGood();
     GLint loc = glGetAttribLocation(this->program, name.c_str());
     if(loc < 0){
@@ -76,18 +76,18 @@ GLuint OShaderProgram::getAttribLocation(std::string name) {
 }
 
 
-void OShaderProgram::requireGood() {
+void ShaderProgram::requireGood() {
     if(!isGood()){
         throw std::runtime_error("Operation on non-good ShaderProgram");
     }
 }
 
-void OShaderProgram::use() {
+void ShaderProgram::use() {
     requireGood();
     glUseProgram(this->program);
 }
 
-GLuint OShaderProgram::getUniformBlockIndex(std::string name) {
+GLuint ShaderProgram::getUniformBlockIndex(std::string name) {
     requireGood();
     GLuint loc = glGetUniformBlockIndex(this->program, name.c_str());
     if(loc == GL_INVALID_INDEX){

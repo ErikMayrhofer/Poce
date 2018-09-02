@@ -6,8 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
-#include "OShader.h"
-#include "OShaderProgram.h"
+#include "Shader.h"
+#include "ShaderProgram.h"
 #include <opencv2/opencv.hpp>
 
 #define INIT(type, expected) if(int a = type##Init() != expected){std::cerr << "Couldn't init " << #type << ": " << a << std::endl; return a;}

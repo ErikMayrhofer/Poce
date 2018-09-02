@@ -7,10 +7,11 @@
 
 #include <opencv2/videoio.hpp>
 #include "Buffer.h"
+#include <boost/signals2.hpp>
 
 class VideoSource {
 public:
-    explicit VideoSource(cv::Size size);
+    explicit VideoSource();
     ~VideoSource();
 
     void refresh();
@@ -31,7 +32,7 @@ public:
 private:
     cv::VideoCapture capture;
     cv::Mat currentMat;
-    cv::Size targetSize;
+    boost::signals2::signal<void()> captureSize;
 };
 
 

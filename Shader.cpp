@@ -5,9 +5,9 @@
 //
 
 #include <iostream>
-#include "OShader.h"
+#include "Shader.h"
 
-OShader::OShader(std::string sourceFilePath, ShaderType type) :
+Shader::Shader(std::string sourceFilePath, ShaderType type) :
     path(std::move(sourceFilePath)) {
 
     std::ifstream ifs(this->path);
@@ -25,7 +25,7 @@ OShader::OShader(std::string sourceFilePath, ShaderType type) :
     good = compile();
 }
 
-bool OShader::compile() {
+bool Shader::compile() {
     glCompileShader(this->shader);
     GLint success = 0;
     glGetShaderiv(this->shader, GL_COMPILE_STATUS, &success);
@@ -47,10 +47,10 @@ bool OShader::compile() {
     return true;
 }
 
-bool OShader::isGood() const {
+bool Shader::isGood() const {
     return this->good;
 }
 
-const GLuint OShader::getGLShaderReference() const {
+const GLuint Shader::getGLShaderReference() const {
     return this->shader;
 }

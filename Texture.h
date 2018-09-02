@@ -73,14 +73,14 @@ unsigned char getFreeTextureUnit();
 template <typename T>
 class Texture {
 public:
-    Texture(unsigned int width, unsigned int height, ColorMode mode);
-    Texture(unsigned int width, unsigned int height, ColorMode mode, unsigned char textureUnit);
+    Texture(ColorMode mode);
+    Texture(ColorMode mode, unsigned char textureUnit);
     ~Texture();
 
     void bind();
     void unbind();
 
-    void useBuffer(Buffer<T>& buffer);
+    void useBuffer(Buffer<T>& buffer, uint width, uint height);
 
     inline GLenum getGLDataType() const;
 
@@ -98,20 +98,18 @@ public:
     inline GLuint getGLTextureUnit();
 
 private:
-    unsigned int width;
-    unsigned int height;
     ColorMode colorMode;
     unsigned char textureUnit;
     GLuint textureHandle;
 };
 
 template<typename T>
-Texture<T>::Texture(unsigned int width, unsigned int height, ColorMode mode) :
-        Texture(width, height, mode, getFreeTextureUnit()) {}
+Texture<T>::Texture(ColorMode mode) :
+        Texture(mode, getFreeTextureUnit()) {}
 
 template<typename T>
-Texture<T>::Texture(unsigned int width, unsigned int height, ColorMode mode, unsigned char textureUnit) :
-width(width), height(height), colorMode(mode), textureUnit(textureUnit), textureHandle(0) {
+Texture<T>::Texture(ColorMode mode, unsigned char textureUnit) :
+colorMode(mode), textureUnit(textureUnit), textureHandle(0) {
     requestTextureUnit(textureUnit);
     glGenTextures(1, &textureHandle);
     assert(textureHandle != 0);
@@ -137,7 +135,7 @@ void Texture<T>::unbind() {
 }
 
 template<typename T>
-void Texture<T>::useBuffer(Buffer<T> &buffer) {
+void Texture<T>::useBuffer(Buffer<T> &buffer, uint width, uint height) {
     withBuffer(buffer, {
         glTexImage2D(GL_TEXTURE_2D, 0, (GLint) colorMode, width, height, 0 , (GLenum) colorMode, getGLDataType(), nullptr);
     })

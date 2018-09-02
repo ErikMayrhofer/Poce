@@ -16,9 +16,9 @@ enum ShaderType {
     COMPUTE_SHADER = GL_COMPUTE_SHADER
 };
 
-class OShader {
+class Shader {
 public:
-    explicit OShader(std::string sourceFilePath, ShaderType type);
+    explicit Shader(std::string sourceFilePath, ShaderType type);
     bool isGood() const;
     const GLuint getGLShaderReference() const;
 

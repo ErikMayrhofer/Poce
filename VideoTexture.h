@@ -13,8 +13,7 @@
 
 class VideoTexture {
 public:
-    explicit VideoTexture(unsigned int width, unsigned int height);
-    explicit VideoTexture(cv::Size targetSize);
+    explicit VideoTexture();
     ~VideoTexture();
 
     void setUniformToUnit(GLuint uniformLoc);

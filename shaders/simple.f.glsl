@@ -1,6 +1,7 @@
 #version 450
 
 in vec2 Texcoord;
+in vec2 Coords;
 uniform sampler2D texture_sampler;
 
 out vec4 outColor;
@@ -13,12 +14,11 @@ uniform game_data{
 
 void main()
 {
-    //outColor = texture(tex, Texcoord);
-    if(distance(Texcoord, playerR) < 0.2){
+    if(distance(Coords, playerR) < 10){
         outColor = vec4(0.0,1.0,0.0,0.0);
-    }else if(distance(Texcoord, playerL) < 0.2){
+    }else if(distance(Coords, playerL) < 10){
         outColor = vec4(1.0,0.0,0.0,0.0);
-    }else if(distance(Texcoord, ball) < 0.2){
+    }else if(distance(Coords, ball) < 10){
         outColor = vec4(0.0,0.0,0.0,0.0);
     }else{
         outColor = texture2D(texture_sampler, Texcoord);

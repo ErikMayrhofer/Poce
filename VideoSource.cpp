@@ -7,7 +7,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-VideoSource::VideoSource(cv::Size size) : capture(0), targetSize(size){
+VideoSource::VideoSource() : capture(0){
     assert(this->capture.isOpened());
 }
 
@@ -17,7 +17,6 @@ VideoSource::~VideoSource() {
 
 void VideoSource::refresh() {
     this->capture >> this->currentMat;
-    cv::resize(this->currentMat, this->currentMat, this->targetSize);
     cv::cvtColor(this->currentMat, this->currentMat, CV_BGR2RGB);
 }
 

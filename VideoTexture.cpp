@@ -4,22 +4,18 @@
 
 #include "VideoTexture.h"
 
-VideoTexture::VideoTexture(unsigned int width, unsigned int height)
-:VideoTexture(cv::Size(width, height)) {
-
-}
-
-VideoTexture::VideoTexture(cv::Size targetSize):
-videoSource(targetSize),
+VideoTexture::VideoTexture():
+videoSource(),
 pixelBuffer(BufferType::PixelUnpack, DynamicDraw),
-texture(static_cast<unsigned int>(targetSize.width), static_cast<unsigned int>(targetSize.height), ColorMode::RGB){
+texture(ColorMode::RGB){
     texture.setWrapST(WrapMode::Repeat);
     texture.setMinMagFilter(MagFilter::Linear);
 }
 
 void VideoTexture::update() {
     videoSource.fetchTo(pixelBuffer, firstFill);
-    texture.useBuffer(pixelBuffer);
+    texture.useBuffer(pixelBuffer, static_cast<uint>(videoSource.getMat().cols),
+                      static_cast<uint>(videoSource.getMat().rows));
 
     firstFill = false;
 }
