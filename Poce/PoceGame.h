@@ -24,6 +24,12 @@ struct ubo_data_game_data{
     float playerL[2];
     float playerR[2];
     float ball[2];
+    float fieldSize[2];
+    int timeMS;
+};
+
+struct ubo_config_data{
+    float faceSize;
 };
 
 class PoceGame : public Game{
@@ -39,6 +45,7 @@ private:
     VideoTexture* texture;
     Buffer<float>* vertexBuffer;
     Buffer<float>* gameDataBuffer;
+    Buffer<float>* configDataBuffer;
     GLuint mvp_location;
     GLuint vpos_location;
     GLuint tex_attrib;
@@ -52,6 +59,9 @@ private:
             };
 
     ubo_data_game_data game_data;
+    ubo_config_data config_data = {
+            100.0 //FaceSize
+    };
 };
 
 #endif //DLIBTEST_POCEGAME_H

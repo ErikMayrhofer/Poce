@@ -42,10 +42,13 @@ void PoceGame::init() {
     vertexBuffer = new Buffer<float>(BufferType::Array, DynamicDraw);
     vertexBuffer->write(vertices, sizeof(vertices), true);
 
-    ubo_data_game_data game_data {};
     gameDataBuffer = new Buffer<float>(BufferType::Uniform, DynamicDraw);
     gameDataBuffer->write(&game_data, sizeof(game_data), true);
     program->bindUBOTo(*gameDataBuffer, "game_data", 1);
+
+    configDataBuffer = new Buffer<float>(BufferType::Uniform, DynamicDraw);
+    configDataBuffer->write(&config_data, sizeof(config_data), true);
+    program->bindUBOTo(*configDataBuffer, "config_data", 2);
 
 
     withBuffer(*vertexBuffer, {
@@ -75,6 +78,9 @@ void PoceGame::loop() {
     vertices[3].x = cWidth;
     vertices[3].y = cHeight;
     vertexBuffer->write(vertices, sizeof(vertices), true);
+    game_data.fieldSize[0] = cWidth;
+    game_data.fieldSize[1] = cHeight;
+    game_data.timeMS = std::chrono::system_clock::now().time_since_epoch().count()/1000000;
 
     float vWidth = cWidth;
     float vHeight = vWidth / wAspect;
