@@ -24,7 +24,6 @@ target_link_libraries(PoceExp ${OpenCV_LIBS} ${OPENGL_LIBRARIES} ${BOOST_LIBRARI
 
 #file(GLOB shaders shaders/**)
 file(COPY shaders DESTINATION .)
-file(COPY vid.mp4 DESTINATION .)
 file(COPY shape_predictor_68_face_landmarks.dat DESTINATION .)
 
 project(DlibTest)
