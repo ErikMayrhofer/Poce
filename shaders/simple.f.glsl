@@ -46,9 +46,9 @@ vec4 blackHole(vec2 center, float radius, float amount){
     float dist = sqrt(dx * dx + dy * dy);
     float pull = flattenFromInfinity(radius, dist, 500000);
 
-    vec2 r = rotate(mt,st,pull, 1.0, 0.2);
+    vec2 r = rotate(mt,st,pull, 1.0, 0.6);
     vec4 imgcolor = texture2D(texture_sampler, r/fieldSize);
-    float blackfac = 0.2;
+    float blackfac = 0.1;
     vec3 color = vec3(imgcolor.x,imgcolor.y,imgcolor.z) - vec3(pull*blackfac);
     return vec4(color,1.);
 }
@@ -57,12 +57,22 @@ void main()
 {
 
     float amount = 2.0;
-    if(distance(Coords, playerR) < faceSize*10000000.0){
-        outColor = blackHole(playerR, faceSize, amount);
-    }else if(distance(Coords, playerL) < faceSize){
-        outColor = blackHole(playerL, faceSize, amount);
-    }else if(distance(Coords, ball) < faceSize){
-        outColor = blackHole(ball, faceSize, amount);
+    float rdist = distance(Coords, playerR);
+    float ldist = distance(Coords, playerL);
+    float bdist = distance(Coords, ball);
+    float minDist = rdist;
+    vec2 minCoord = playerR;
+    if(ldist < minDist){
+        minDist = ldist;
+        minCoord = playerL;
+    }
+    if(bdist < minDist){
+        minDist = bdist;
+        minCoord = ball;
+    }
+
+    if(minDist < faceSize){
+        outColor = blackHole(minCoord, faceSize, amount);
     }else{
         outColor = texture2D(texture_sampler, Texcoord);
     }
