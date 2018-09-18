@@ -5,7 +5,8 @@
 #ifndef DLIBTEST_APP_H
 #define DLIBTEST_APP_H
 
-#include <GL/glew.h>
+#include <glad/glad.h>
+
 #include <iostream>
 #include "Window.h"
 
@@ -58,11 +59,21 @@ void App::launch() {
     window->makeCurrent();
     glfwSwapInterval(1);
 
+    /*
     {
-        int glew = glewInit();
+        GLenum glew = glewInit();
         if(glew != GLEW_OK){
-            throw std::runtime_error("Couldn't init glew with code: " + std::to_string(glew));
+            const char* error = reinterpret_cast<const char*>(glewGetErrorString(glew));
+            std::string errorstr(error);
+            throw std::runtime_error("Couldn't init glew with code: " + errorstr);
         }
+    }
+    */
+
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize OpenGL context" << std::endl;
+        throw std::runtime_error("GLAD failed!");
     }
 
     game = new T(this);

@@ -5,7 +5,7 @@
 #ifndef POCEEXP_TEXTURE_H
 #define POCEEXP_TEXTURE_H
 
-#include <GL/glew.h>
+#include "glwrap.h"
 #include "Buffer.h"
 #include <cassert>
 #include "gltypemap.h"

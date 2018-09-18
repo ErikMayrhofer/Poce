@@ -5,7 +5,7 @@
 #ifndef POCEEXP_BUFFER_H
 #define POCEEXP_BUFFER_H
 
-#include <GL/glew.h>
+#include "glwrap.h"
 #include <opencv2/core/hal/interface.h>
 #include <cstring>
 #include "gltypemap.h"

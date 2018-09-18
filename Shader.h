@@ -7,7 +7,8 @@
 
 
 #include <fstream>
-#include <GL/glew.h>
+#include "glwrap.h"
+
 
 enum ShaderType {
     VERTEX_SHADER = GL_VERTEX_SHADER,

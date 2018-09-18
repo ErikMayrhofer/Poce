@@ -3,7 +3,7 @@
 //
 
 #include <cassert>
-#include <GL/glew.h>
+#include "glwrap.h"
 #include "Texture.h"
 
 bool usedTextureUnits[OPENGL_TEXTURE_AMOUNT] = {};

@@ -1,0 +1,6 @@
+Everything in this subfolder, namely:
+glad/include/glad/glad.h
+glad/include/KHR/khrplatform.h
+glad/src/glad.c
+Are generated with the GLAD-Generator: https://github.com/Dav1dde/glad
+and licensed under the WTFPL.

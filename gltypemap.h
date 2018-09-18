@@ -5,7 +5,7 @@
 #ifndef POCEEXP_GL_TYPE_MAP_H
 #define POCEEXP_GL_TYPE_MAP_H
 
-#include <GL/glew.h>
+#include "glwrap.h"
 
 
 template<typename U> GLenum toGLType();
