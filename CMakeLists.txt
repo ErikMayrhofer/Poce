@@ -9,7 +9,6 @@ add_subdirectory(dlib dlib_build)
 find_package(OpenCV REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
-#find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${GLFW_INCLUDE_DIR} glad/include)
@@ -22,11 +21,5 @@ add_executable(PoceExp glad/src/glad.c
 
 target_link_libraries(PoceExp ${OpenCV_LIBS} OpenGL::GL OpenGL::GLU OpenGL::GLX OpenGL::OpenGL ${CMAKE_DL_LIBS} glfw dlib::dlib)
 
-#file(GLOB shaders shaders/**)
 file(COPY shaders DESTINATION .)
 file(COPY shape_predictor_68_face_landmarks.dat DESTINATION .)
-
-#project(DlibTest)
-#add_executable(DlibTest FaceDetector.h FaceDetector.cpp main_dlib.cpp Poce/PoceGame.cpp Poce/PoceGame.h)
-#target_link_libraries(DlibTest ${OpenCV_LIBS} dlib::dlib OpenGL::GL)
-#file(COPY shape_predictor_68_face_landmarks.dat DESTINATION .)
