@@ -19,6 +19,9 @@ uniform config_data{
     float faceSize;
 };
 
+//Debug function, to mark unused variables as used! Don't use!
+void use(vec2 param){if(sin(param.x) > 2.0)outColor = texture2D(texture_sampler, Texcoord);}
+
 vec2 rotate(vec2 center, vec2 position, float angle, float stretch, float skew){
 	vec2 normCoords = position - center;
 
@@ -36,44 +39,44 @@ float flattenFromInfinity(float zeropoint, float x, float flatness){
     return -(mx*mx*mx)/(flatness*x);
 }
 
-vec4 blackHole(vec2 center, float radius, float amount){
-    vec2 st = Coords;
+vec2 distortPosition(vec2 incoords, vec2 center, float radius){
+    vec2 st = incoords;
     vec2 mt = center;
-
     float dx = st.x - mt.x;
     float dy = st.y - mt.y;
-
     float dist = sqrt(dx * dx + dy * dy);
+
+    if(dist > radius)
+        return incoords;
     float pull = flattenFromInfinity(radius, dist, 500000);
 
     vec2 r = rotate(mt,st,pull, 1.0, 0.6);
-    vec4 imgcolor = texture2D(texture_sampler, r/fieldSize);
-    float blackfac = 0.1;
-    vec3 color = vec3(imgcolor.x,imgcolor.y,imgcolor.z) - vec3(pull*blackfac);
-    return vec4(color,1.);
+    return r;
+}
+
+vec2 applyDistortions(){
+    vec2 curr = Coords;
+    curr = distortPosition(curr, playerR, faceSize);
+    curr = distortPosition(curr, playerL, faceSize);
+    curr = distortPosition(curr, ball, faceSize);
+    return curr;
+}
+
+vec4 applyColor(vec4 incolor, vec2 pos, float size){
+    float pull = flattenFromInfinity(size, distance(Coords, pos), 500000);
+    return incolor - vec4(pull*0.2);
+}
+
+vec4 applyColors(vec4 incolor){
+    incolor = applyColor(incolor, playerR, faceSize);
+    incolor = applyColor(incolor, playerL, faceSize);
+    incolor = applyColor(incolor, ball, faceSize);
+    return incolor;
 }
 
 void main()
 {
-
-    float amount = 2.0;
-    float rdist = distance(Coords, playerR);
-    float ldist = distance(Coords, playerL);
-    float bdist = distance(Coords, ball);
-    float minDist = rdist;
-    vec2 minCoord = playerR;
-    if(ldist < minDist){
-        minDist = ldist;
-        minCoord = playerL;
-    }
-    if(bdist < minDist){
-        minDist = bdist;
-        minCoord = ball;
-    }
-
-    if(minDist < faceSize){
-        outColor = blackHole(minCoord, faceSize, amount);
-    }else{
-        outColor = texture2D(texture_sampler, Texcoord);
-    }
+    //TODO invent colors for clipping out of image
+    outColor = applyColors(texture2D(texture_sampler, applyDistortions()/fieldSize));
+    use(Texcoord);
 }
