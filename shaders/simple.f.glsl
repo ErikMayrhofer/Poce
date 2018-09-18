@@ -19,57 +19,45 @@ uniform config_data{
     float faceSize;
 };
 
-float angle(vec2 a, vec2 b){
-    float dy = b.y - a.y;
-    float dx = a.x - b.x;
-    if(dx == 0){
-        if(dy > 0){
-            return M_PI/2;
-        }else if(dy < 0){
-            return -M_PI/2;
-        }
-    }
+vec2 rotate(vec2 center, vec2 position, float angle, float stretch, float skew){
+	vec2 normCoords = position - center;
 
-    return atan(dy, dx)+M_PI;
+	float cos = cos(angle * stretch);
+	float sin = sin(angle * skew);
+	float nx = cos * normCoords.x + sin * normCoords.y;
+	float ny = cos * normCoords.y - sin * normCoords.x;
+
+	return vec2(nx, ny) + center;
 }
 
-vec4 debug(vec2 coords){
-    return vec4(mod(10*coords, 1.0), 1.0, 1.0);
-}
-
-vec4 distort(vec2 center, float radius, float amount){
-    radius += 20;
-    float angle = angle(center, Coords);
-    float dist = distance(Coords, center);
-    float distPct = dist/radius;
-    float scaledDistPct = pow(distPct, amount);
-    float scaledDist = scaledDistPct * radius;
-    float dx = cos(angle)*scaledDist;
-    float dy = sin(angle)*scaledDist;
-    vec2 newCoords = center + vec2(dx, -dy);
-    return texture2D(texture_sampler, newCoords/fieldSize);
+float flattenFromInfinity(float zeropoint, float x, float flatness){
+    if(x > zeropoint) return 0.0;
+    float mx = x - zeropoint;
+    return -(mx*mx*mx)/(flatness*x);
 }
 
 vec4 blackHole(vec2 center, float radius, float amount){
-    float angle = angle(center, Coords);
-    float dist = distance(Coords, center);
-    float distPct = 1.0-dist/radius;
-    float scaledDistPct = pow(distPct*6.0, amount);
-    if(scaledDistPct > 1.0){
-        return vec4(0.0);
-    }
-    float scaledDist = scaledDistPct * radius;
-    float dx = cos(angle)*scaledDist;
-    float dy = sin(angle)*scaledDist;
-    vec2 newCoords = center + vec2(dx, -dy);
-    return texture2D(texture_sampler, newCoords/fieldSize);
+    vec2 st = Coords;
+    vec2 mt = center;
+
+    float dx = st.x - mt.x;
+    float dy = st.y - mt.y;
+
+    float dist = sqrt(dx * dx + dy * dy);
+    float pull = flattenFromInfinity(radius, dist, 500000);
+
+    vec2 r = rotate(mt,st,pull, 1.0, 0.2);
+    vec4 imgcolor = texture2D(texture_sampler, r/fieldSize);
+    float blackfac = 0.2;
+    vec3 color = vec3(imgcolor.x,imgcolor.y,imgcolor.z) - vec3(pull*blackfac);
+    return vec4(color,1.);
 }
 
 void main()
 {
-    //float amount = sin(float(timeMS)/2000.0)*2.0+1.0;
+
     float amount = 2.0;
-    if(distance(Coords, playerR) < faceSize){
+    if(distance(Coords, playerR) < faceSize*10000000.0){
         outColor = blackHole(playerR, faceSize, amount);
     }else if(distance(Coords, playerL) < faceSize){
         outColor = blackHole(playerL, faceSize, amount);

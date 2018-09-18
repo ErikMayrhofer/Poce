@@ -60,7 +60,7 @@ private:
 
     ubo_data_game_data game_data;
     ubo_config_data config_data = {
-            100.0 //FaceSize
+            400.0 //FaceSize
     };
 };
 
