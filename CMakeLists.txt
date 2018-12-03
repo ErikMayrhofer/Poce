@@ -11,6 +11,8 @@ find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 
+add_subdirectory(Box2D box2d_build)
+
 include_directories(${OpenCV_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${GLFW_INCLUDE_DIR} glad/include)
 add_executable(PoceExp glad/src/glad.c
         Shader.cpp Shader.h ShaderProgram.cpp ShaderProgram.h
