@@ -5,7 +5,7 @@
 #ifndef DLIBTEST_POCEGAME_H
 #define DLIBTEST_POCEGAME_H
 
-
+#include <Box2D/Box2D.h>
 #include "../ShaderProgram.h"
 #include "../FaceDetector.h"
 #include "../VideoTexture.h"
@@ -30,13 +30,15 @@ struct ubo_data_game_data{
 
 struct ubo_config_data{
     float faceSize;
+    float fieldWidthInM;
+    float fieldWithInPixel;
 };
 
 class PoceGame : public Game{
 public:
     using Game::Game;
     void init() override;
-    void loop() override;
+    void loop(double deltaMs) override;
 
     ~PoceGame() override;
 private:
@@ -60,8 +62,15 @@ private:
 
     ubo_data_game_data game_data;
     ubo_config_data config_data = {
-            400.0 //FaceSize
+            400.0, //FaceSize,
+            2, //FieldWidthinM
+            1000 //FieldWidthInPixel
     };
+
+    b2Body* groundBody;
+    b2Body* topBody;
+    b2Body* ballBody;
+    b2World* world;
 };
 
 #endif //DLIBTEST_POCEGAME_H

@@ -10,8 +10,7 @@ find_package(OpenCV REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
-
-add_subdirectory(Box2D box2d_build)
+find_package(Box2D REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${GLFW_INCLUDE_DIR} glad/include)
 add_executable(PoceExp glad/src/glad.c
@@ -21,7 +20,10 @@ add_executable(PoceExp glad/src/glad.c
         FaceDetector.cpp FaceDetector.h monitoring.h Window.cpp Window.h App.cpp App.h
         Poce/PoceGame.cpp Poce/PoceGame.h glwrap.h)
 
-target_link_libraries(PoceExp ${OpenCV_LIBS} OpenGL::GL OpenGL::GLU OpenGL::GLX OpenGL::OpenGL ${CMAKE_DL_LIBS} glfw dlib::dlib)
+target_link_libraries(PoceExp ${OpenCV_LIBS}
+        OpenGL::GL OpenGL::GLU OpenGL::GLX
+        OpenGL::OpenGL ${CMAKE_DL_LIBS} glfw dlib::dlib
+        Box2D)
 
 file(COPY shaders DESTINATION .)
 file(COPY shape_predictor_68_face_landmarks.dat DESTINATION .)

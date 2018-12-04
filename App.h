@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 
 #include <iostream>
+#include <chrono>
 #include "Window.h"
 
 class Game;
@@ -35,7 +36,7 @@ public:
     virtual ~Game() = default;
 
     virtual void init(){};
-    virtual void loop(){};
+    virtual void loop(double deltaMillis){};
     App* getApp();
 
 private:
@@ -80,8 +81,14 @@ void App::launch() {
 
     game->init();
 
+
+    auto lastTick = std::chrono::system_clock::now();
     while(!window->shouldClose()){
-        game->loop();
+        auto now = std::chrono::system_clock::now();
+        std::chrono::duration<double, std::milli> delta = (now-lastTick);
+        lastTick = now;
+
+        game->loop(delta.count());
 
         window->swapBuffers();
         glfwPollEvents();
