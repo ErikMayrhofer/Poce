@@ -17,6 +17,8 @@ uniform game_data{
 
 uniform config_data{
     float faceSize;
+    float ballSize;
+    float ballEffectSize;
 };
 
 //Debug function, to mark unused variables as used! Don't use!
@@ -54,23 +56,50 @@ vec2 distortPosition(vec2 incoords, vec2 center, float radius){
     return r;
 }
 
-vec2 applyDistortions(){
-    vec2 curr = Coords;
-    curr = distortPosition(curr, playerR, faceSize);
-    curr = distortPosition(curr, playerL, faceSize);
-    curr = distortPosition(curr, ball, faceSize);
-    return curr;
+vec2 distortPlayerPosition(vec2 incoords, vec2 center, float radius){
+    float distance = distance(incoords, center);
+    float distPerc = distance / radius;
+
+    vec2 dirUnit = normalize(incoords - center);
+
+    return center + dirUnit*distPerc*distPerc;
 }
 
 vec4 applyColor(vec4 incolor, vec2 pos, float size){
     float pull = flattenFromInfinity(size, distance(Coords, pos), 500000);
+    if(distance(pos, Coords) < ballSize){
+        return vec4(1.0,0.0,0.0,1.0);
+    }
     return incolor - vec4(pull*0.2);
 }
 
+vec4 applyPlayerColor(vec4 incolor, vec2 pos, float size){
+    if(distance(Coords, pos) < size && false){
+        return vec4(0.0,0.0,0.0,0.0);
+    }
+    return incolor;
+}
+
+vec2 applyDistortions(){
+    vec2 curr = Coords;
+    if(distance(curr, playerR) < faceSize){
+        return distortPlayerPosition(curr, playerR, faceSize);
+    }
+    if(distance(curr, playerL) < faceSize){
+        return distortPlayerPosition(curr, playerL, faceSize);
+    }
+    curr = distortPosition(curr, ball, ballEffectSize);
+    return curr;
+}
+
+vec2 mirror(vec2 inpos){
+    return vec2(-inpos.x, inpos.y);
+}
+
 vec4 applyColors(vec4 incolor){
-    incolor = applyColor(incolor, playerR, faceSize);
-    incolor = applyColor(incolor, playerL, faceSize);
-    incolor = applyColor(incolor, ball, faceSize);
+    incolor = applyPlayerColor(incolor, playerR, faceSize);
+    incolor = applyPlayerColor(incolor, playerL, faceSize);
+    incolor = applyColor(incolor, ball, ballEffectSize);
     return incolor;
 }
 

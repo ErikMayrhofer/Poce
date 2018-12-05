@@ -30,6 +30,8 @@ struct ubo_data_game_data{
 
 struct ubo_config_data{
     float faceSize;
+    float ballSize;
+    float ballEffectSize;
     float fieldWidthInM;
     float fieldWithInPixel;
 };
@@ -63,7 +65,9 @@ private:
 
     ubo_data_game_data game_data;
     ubo_config_data config_data = {
-            400.0, //FaceSize,
+            100.0, //FaceSize,
+            30.0, //BallSize
+            400.0, //BallEffectSize
             2, //FieldWidthinM
             1000 //FieldWidthInPixel
     };
@@ -72,8 +76,11 @@ private:
     b2Body* topBody;
     b2Body* ballBody;
     b2World* world;
-    b2Body* p1Body;
-    b2Body* p2Body;
+    b2Body* pRBody;
+    b2Body* pLBody;
+
+    bool pRLost = false;
+    bool pLLost = false;
 };
 
 #endif //DLIBTEST_POCEGAME_H

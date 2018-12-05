@@ -67,6 +67,7 @@ void PoceGame::init() {
     float mAspect = mWidth / mHeight; //a = w / h -> w = a * h
     float widthInM = this->config_data.fieldWidthInM;
     float heightInM = widthInM / mAspect;
+    float upixelToMeterRatio = this->config_data.fieldWidthInM/this->config_data.fieldWithInPixel; //p * upm = m
 
     std::cout << widthInM << "x" << heightInM << std::endl;
 
@@ -97,7 +98,7 @@ void PoceGame::init() {
         bodyDef->type = b2_dynamicBody;
         bodyDef->position.Set(widthInM / 2, heightInM / 2);
         bodyDef->linearDamping = 1.0f;
-        shape->m_radius = 0.15f;
+        shape->m_radius = this->config_data.ballSize*upixelToMeterRatio;
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
         fixtureDef->friction = 0.3f;
@@ -111,12 +112,12 @@ void PoceGame::init() {
         b2FixtureDef *fixtureDef = new b2FixtureDef();
         bodyDef->type = b2_kinematicBody;
         bodyDef->position.Set(0, 0);
-        shape->m_radius = 0.15f;
+        shape->m_radius = this->config_data.faceSize*upixelToMeterRatio;
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
         fixtureDef->friction = 0.3f;
-        this->p1Body = this->world->CreateBody(bodyDef);
-        this->p1Body->CreateFixture(fixtureDef);
+        this->pRBody = this->world->CreateBody(bodyDef);
+        this->pRBody->CreateFixture(fixtureDef);
     }
     {
         //Player2
@@ -125,12 +126,12 @@ void PoceGame::init() {
         b2FixtureDef *fixtureDef = new b2FixtureDef();
         bodyDef->type = b2_kinematicBody;
         bodyDef->position.Set(0, 0);
-        shape->m_radius = 0.15f;
+        shape->m_radius = this->config_data.faceSize*upixelToMeterRatio;
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
         fixtureDef->friction = 0.3f;
-        this->p2Body = this->world->CreateBody(bodyDef);
-        this->p2Body->CreateFixture(fixtureDef);
+        this->pLBody = this->world->CreateBody(bodyDef);
+        this->pLBody->CreateFixture(fixtureDef);
     }
 
 }
@@ -187,18 +188,34 @@ void PoceGame::loop(double deltaMS) {
         float plrY = static_cast<float>(noses[0].y) * cHeight;
         float sx = static_cast<float>((plrX - game_data.playerR[0]) / meterToPixelRatio / (deltaMS / 1000.f));
         float sy = static_cast<float>((plrY - game_data.playerR[1]) / meterToPixelRatio / (deltaMS / 1000.f));
-        this->p1Body->SetLinearVelocity(b2Vec2(sx, sy));
+        if(pRLost){
+            this->pRBody->SetTransform(b2Vec2(plrX/meterToPixelRatio, plrY/meterToPixelRatio),
+                    this->pRBody->GetAngle());
+        }else{
+            this->pRBody->SetLinearVelocity(b2Vec2(sx, sy));
+        }
         game_data.playerR[1] = plrY;
         game_data.playerR[0] = plrX;
+        pRLost = false;
+    }else{
+        pRLost = true;
     }
     if(noses.size() > 1){
         float plrX = static_cast<float>(noses[1].x) * cWidth;
         float plrY = static_cast<float>(noses[1].y) * cHeight;
         float sx = static_cast<float>((plrX - game_data.playerR[0]) / meterToPixelRatio / deltaMS / 1000.f);
         float sy = static_cast<float>((plrY - game_data.playerR[1]) / meterToPixelRatio / deltaMS / 1000.f);
-        this->p2Body->SetLinearVelocity(b2Vec2(sx, sy));
+        if(pLLost){
+            this->pLBody->SetTransform(b2Vec2(plrX/meterToPixelRatio, plrY/meterToPixelRatio),
+                                       this->pLBody->GetAngle());
+        }else{
+            this->pLBody->SetLinearVelocity(b2Vec2(sx, sy));
+        }
         game_data.playerL[1] = plrY;
         game_data.playerL[0] = plrX;
+        pLLost = false;
+    }else{
+        pLLost = true;
     }
 
 
@@ -207,8 +224,8 @@ void PoceGame::loop(double deltaMS) {
     game_data.ball[1] = this->ballBody->GetPosition().y * meterToPixelRatio;
 
     //std::cout << game_data.ball[0] << " " << game_data.ball[1] << std::endl;
-    std::cout << "--" << this->p1Body->GetPosition().x << " " << this->p1Body->GetPosition().y << std::endl;
-    std::cout << "--" << this->p2Body->GetPosition().x << " " << this->p2Body->GetPosition().y << std::endl;
+    std::cout << "--" << this->pRBody->GetPosition().x << " " << this->pRBody->GetPosition().y << std::endl;
+    std::cout << "--" << this->pLBody->GetPosition().x << " " << this->pLBody->GetPosition().y << std::endl;
 
     gameDataBuffer->write(&game_data, sizeof(game_data), true);
 
