@@ -42,6 +42,7 @@ public:
 
     ~PoceGame() override;
 private:
+
     ShaderProgram* program;
     FaceDetector* detector;
     VideoTexture* texture;
@@ -71,6 +72,8 @@ private:
     b2Body* topBody;
     b2Body* ballBody;
     b2World* world;
+    b2Body* p1Body;
+    b2Body* p2Body;
 };
 
 #endif //DLIBTEST_POCEGAME_H

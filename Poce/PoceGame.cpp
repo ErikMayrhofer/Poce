@@ -71,39 +71,68 @@ void PoceGame::init() {
     std::cout << widthInM << "x" << heightInM << std::endl;
 
     //World10
-    this->world = new b2World(b2Vec2(0.0f, 9.81f));
+    this->world = new b2World(b2Vec2(0.0f, 0.0f));
 
     //Ground
     b2BodyDef* groundBodyDef = new b2BodyDef();
+    groundBodyDef->type = b2_staticBody;
     b2PolygonShape* groundBodyShape = new b2PolygonShape();
-    groundBodyDef->position.Set(widthInM/2.f, heightInM+5.f);
-    groundBodyShape->SetAsBox(widthInM/2, 10.f);
+    groundBodyDef->position.Set(widthInM/2, heightInM+1.0f);
+    groundBodyShape->SetAsBox(widthInM/2, 1.0f);
     this->groundBody = this->world->CreateBody(groundBodyDef);
     this->groundBody->CreateFixture(groundBodyShape, 0.0f);
-
 
     //Top
     b2BodyDef* topBodyDef = new b2BodyDef();
     b2PolygonShape* topBodyShape = new b2PolygonShape();
-    topBodyDef->position.Set(widthInM/2.f, -5.f);
-    topBodyShape->SetAsBox(widthInM/2, 10.f);
+    topBodyDef->position.Set(widthInM/2.f, -1.f);
+    topBodyShape->SetAsBox(widthInM/2, 1.f);
     this->topBody = this->world->CreateBody(topBodyDef);
     this->topBody->CreateFixture(topBodyShape, 0.0f);
+    {
+        //Ball
+        b2BodyDef *bodyDef = new b2BodyDef();
+        b2CircleShape *shape = new b2CircleShape();
+        b2FixtureDef *fixtureDef = new b2FixtureDef();
+        bodyDef->type = b2_dynamicBody;
+        bodyDef->position.Set(widthInM / 2, heightInM / 2);
+        bodyDef->linearDamping = 1.0f;
+        shape->m_radius = 0.15f;
+        fixtureDef->shape = shape;
+        fixtureDef->density = 20.f;
+        fixtureDef->friction = 0.3f;
+        this->ballBody = this->world->CreateBody(bodyDef);
+        this->ballBody->CreateFixture(fixtureDef);
+    }
+    { //TODO Force sync with Faces at startup
+        //Player1
+        b2BodyDef *bodyDef = new b2BodyDef();
+        b2CircleShape *shape = new b2CircleShape();
+        b2FixtureDef *fixtureDef = new b2FixtureDef();
+        bodyDef->type = b2_kinematicBody;
+        bodyDef->position.Set(0, 0);
+        shape->m_radius = 0.15f;
+        fixtureDef->shape = shape;
+        fixtureDef->density = 20.f;
+        fixtureDef->friction = 0.3f;
+        this->p1Body = this->world->CreateBody(bodyDef);
+        this->p1Body->CreateFixture(fixtureDef);
+    }
+    {
+        //Player2
+        b2BodyDef *bodyDef = new b2BodyDef();
+        b2CircleShape *shape = new b2CircleShape();
+        b2FixtureDef *fixtureDef = new b2FixtureDef();
+        bodyDef->type = b2_kinematicBody;
+        bodyDef->position.Set(0, 0);
+        shape->m_radius = 0.15f;
+        fixtureDef->shape = shape;
+        fixtureDef->density = 20.f;
+        fixtureDef->friction = 0.3f;
+        this->p2Body = this->world->CreateBody(bodyDef);
+        this->p2Body->CreateFixture(fixtureDef);
+    }
 
-    b2BodyDef* ballDef = new b2BodyDef();
-    ballDef->type = b2_dynamicBody;
-    ballDef->position.Set(widthInM/2, heightInM/2);
-    ballDef->linearDamping = 10.0f;
-    //b2PolygonShape* ballShape = new b2PolygonShape();
-    //ballShape->SetAsBox(0.15f, 0.15f);
-    b2CircleShape* ballShape = new b2CircleShape();
-    ballShape->m_radius = 0.15f;
-    b2FixtureDef* ballFixDef = new b2FixtureDef;
-    ballFixDef->shape = ballShape;
-    ballFixDef->density = 20.f;
-    ballFixDef->friction = 0.3f;
-    this->ballBody->CreateFixture(ballFixDef);
-    this->ballBody = this->world->CreateBody(ballDef);
 }
 
 void PoceGame::loop(double deltaMS) {
@@ -112,8 +141,7 @@ void PoceGame::loop(double deltaMS) {
     //std::cout << 1/(deltaMS/1000) << std::endl;
 
 
-
-    this->world->Step(static_cast<float32>(deltaMS / 1000), 6, 2);
+    std::cerr << "3" << std::endl;
 
 
 
@@ -155,20 +183,32 @@ void PoceGame::loop(double deltaMS) {
 
     std::vector<FaceDetector::Point> noses = detector->detectNoses(texture->getMat(), cv::Size(640, 480));
     if(!noses.empty()){
-        game_data.playerR[0] = static_cast<float>(noses[0].x) * cWidth;
-        game_data.playerR[1] = static_cast<float>(noses[0].y) * cHeight;
+        float plrX = static_cast<float>(noses[0].x) * cWidth;
+        float plrY = static_cast<float>(noses[0].y) * cHeight;
+        float sx = static_cast<float>((plrX - game_data.playerR[0]) / meterToPixelRatio / (deltaMS / 1000.f));
+        float sy = static_cast<float>((plrY - game_data.playerR[1]) / meterToPixelRatio / (deltaMS / 1000.f));
+        this->p1Body->SetLinearVelocity(b2Vec2(sx, sy));
+        game_data.playerR[1] = plrY;
+        game_data.playerR[0] = plrX;
     }
     if(noses.size() > 1){
-        game_data.playerL[0] = static_cast<float>(noses[1].x) * cWidth;
-        game_data.playerL[1] = static_cast<float>(noses[1].y) * cHeight;
+        float plrX = static_cast<float>(noses[1].x) * cWidth;
+        float plrY = static_cast<float>(noses[1].y) * cHeight;
+        float sx = static_cast<float>((plrX - game_data.playerR[0]) / meterToPixelRatio / deltaMS / 1000.f);
+        float sy = static_cast<float>((plrY - game_data.playerR[1]) / meterToPixelRatio / deltaMS / 1000.f);
+        this->p2Body->SetLinearVelocity(b2Vec2(sx, sy));
+        game_data.playerL[1] = plrY;
+        game_data.playerL[0] = plrX;
     }
 
 
+    this->world->Step(static_cast<float32>(deltaMS / 1000), 6, 2);
     game_data.ball[0] = this->ballBody->GetPosition().x * meterToPixelRatio;
     game_data.ball[1] = this->ballBody->GetPosition().y * meterToPixelRatio;
 
-    std::cout << game_data.ball[0] << " " << game_data.ball[1] << std::endl;
-    std::cout << "--" << this->groundBody->GetPosition().x << " " << this->groundBody->GetPosition().y << std::endl;
+    //std::cout << game_data.ball[0] << " " << game_data.ball[1] << std::endl;
+    std::cout << "--" << this->p1Body->GetPosition().x << " " << this->p1Body->GetPosition().y << std::endl;
+    std::cout << "--" << this->p2Body->GetPosition().x << " " << this->p2Body->GetPosition().y << std::endl;
 
     gameDataBuffer->write(&game_data, sizeof(game_data), true);
 
