@@ -50,7 +50,6 @@ void PoceGame::init() {
     configDataBuffer->write(&config_data, sizeof(config_data), true);
     program->bindUBOTo(*configDataBuffer, "config_data", 2);
 
-
     withBuffer(*vertexBuffer, {
         glEnableVertexAttribArray(vpos_location);
         glVertexAttribPointer(vpos_location, 2, vertexBuffer->getGLDataType(), GL_FALSE, sizeof(float)*4, (void*) (sizeof(float) * 0));
@@ -69,27 +68,34 @@ void PoceGame::init() {
     float heightInM = widthInM / mAspect;
     float upixelToMeterRatio = this->config_data.fieldWidthInM/this->config_data.fieldWithInPixel; //p * upm = m
 
-    std::cout << widthInM << "x" << heightInM << std::endl;
-
-    //World10
+    //World
     this->world = new b2World(b2Vec2(0.0f, 0.0f));
-
-    //Ground
-    b2BodyDef* groundBodyDef = new b2BodyDef();
-    groundBodyDef->type = b2_staticBody;
-    b2PolygonShape* groundBodyShape = new b2PolygonShape();
-    groundBodyDef->position.Set(widthInM/2, heightInM+1.0f);
-    groundBodyShape->SetAsBox(widthInM/2, 1.0f);
-    this->groundBody = this->world->CreateBody(groundBodyDef);
-    this->groundBody->CreateFixture(groundBodyShape, 0.0f);
-
-    //Top
-    b2BodyDef* topBodyDef = new b2BodyDef();
-    b2PolygonShape* topBodyShape = new b2PolygonShape();
-    topBodyDef->position.Set(widthInM/2.f, -1.f);
-    topBodyShape->SetAsBox(widthInM/2, 1.f);
-    this->topBody = this->world->CreateBody(topBodyDef);
-    this->topBody->CreateFixture(topBodyShape, 0.0f);
+    {
+        //Ground
+        b2BodyDef* bodyDef = new b2BodyDef();
+        b2FixtureDef *fixtureDef = new b2FixtureDef();
+        b2PolygonShape* shape = new b2PolygonShape();
+        bodyDef->type = b2_staticBody;
+        bodyDef->position.Set(widthInM/2, heightInM+1.0f);
+        shape->SetAsBox(widthInM/2, 1.0f);
+        fixtureDef->shape = shape;
+        fixtureDef->restitution = 1.0f;
+        this->groundBody = this->world->CreateBody(bodyDef);
+        this->groundBody->CreateFixture(fixtureDef);
+    }
+    {
+        //Top
+        b2BodyDef* bodyDef = new b2BodyDef();
+        b2FixtureDef *fixtureDef = new b2FixtureDef();
+        b2PolygonShape* shape = new b2PolygonShape();
+        bodyDef->type = b2_staticBody;
+        bodyDef->position.Set(widthInM/2.f, -1.f);
+        shape->SetAsBox(widthInM/2, 1.f);
+        fixtureDef->shape = shape;
+        fixtureDef->restitution = 1.0f;
+        this->groundBody = this->world->CreateBody(bodyDef);
+        this->groundBody->CreateFixture(fixtureDef);
+    }
     {
         //Ball
         b2BodyDef *bodyDef = new b2BodyDef();
@@ -134,7 +140,7 @@ void PoceGame::init() {
         this->pLBody = this->world->CreateBody(bodyDef);
         this->pLBody->CreateFixture(fixtureDef);
     }
-
+    this->throwIn();
 }
 
 void PoceGame::loop(double deltaMS) {
@@ -145,7 +151,6 @@ void PoceGame::loop(double deltaMS) {
     if(isWon() && this->game_data.stateAge > this->config_data.winTimeoutMS){
         this->throwIn();
     }
-
 
     texture->update();
     float wWidth = size.width;
@@ -158,7 +163,6 @@ void PoceGame::loop(double deltaMS) {
     float cHeight = cWidth / mAspect;
 
     float meterToPixelRatio = cWidth / config_data.fieldWidthInM; //meter * r = pixel
-
 
     vertices[1].y = cHeight;
     vertices[2].x = cWidth;
@@ -183,7 +187,6 @@ void PoceGame::loop(double deltaMS) {
 
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(calculateMVP(size.width, size.height, vWidth, vHeight)));
 
-    //std::vector<FaceDetector::Point> noses = detector->detectNoses(texture->getMat(), cv::Size(640, 480));
 
     players plr = getPlayerPos();
     double deltaS = deltaMS/1000.0f;
@@ -227,12 +230,10 @@ void PoceGame::loop(double deltaMS) {
     this->world->Step(static_cast<float32>(deltaMS / 1000), 6, 2);
     game_data.ball[0] = this->ballBody->GetPosition().x * meterToPixelRatio;
     game_data.ball[1] = this->ballBody->GetPosition().y * meterToPixelRatio;
-    game_data.playerR[0] = this->pRBody->GetPosition().x*meterToPixelRatio;
-    game_data.playerR[1] = this->pRBody->GetPosition().y*meterToPixelRatio;
-    game_data.playerL[0] = this->pLBody->GetPosition().x*meterToPixelRatio;
-    game_data.playerL[1] = this->pLBody->GetPosition().y*meterToPixelRatio;
-
-    gameDataBuffer->write(&game_data, sizeof(game_data), true);
+    game_data.playerR[0] = this->pRBody->GetPosition().x* meterToPixelRatio;
+    game_data.playerR[1] = this->pRBody->GetPosition().y* meterToPixelRatio;
+    game_data.playerL[0] = this->pLBody->GetPosition().x* meterToPixelRatio;
+    game_data.playerL[1] = this->pLBody->GetPosition().y* meterToPixelRatio;
 
     if(this->game_data.gameState == GameStates::Playing) {
         if (game_data.ball[0] < config_data.goalAreaInPixel) {
@@ -241,6 +242,8 @@ void PoceGame::loop(double deltaMS) {
             this->changeState(GameStates::PlayerRWon);
         }
     }
+
+    gameDataBuffer->write(&game_data, sizeof(game_data), true);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
