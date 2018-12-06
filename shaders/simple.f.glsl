@@ -52,32 +52,37 @@ vec2 distortPosition(vec2 incoords, vec2 center, float radius){
         return incoords;
     float pull = flattenFromInfinity(radius, dist, 500000);
 
-    vec2 r = rotate(mt,st,pull, 1.0, 0.6);
+    vec2 r = rotate(mt,st,pull, 1.0, 0.8);
     return r;
 }
 
 vec2 distortPlayerPosition(vec2 incoords, vec2 center, float radius){
     float distance = distance(incoords, center);
-    float distPerc = distance / radius;
+    float distPerc = distance / (radius*1.2);
 
     vec2 dirUnit = normalize(incoords - center);
 
-    return center + dirUnit*distPerc*distPerc;
+    return center + dirUnit*(distPerc)*radius;
 }
 
 vec4 applyColor(vec4 incolor, vec2 pos, float size){
     float pull = flattenFromInfinity(size, distance(Coords, pos), 500000);
-    if(distance(pos, Coords) < ballSize){
-        return vec4(1.0,0.0,0.0,1.0);
-    }
     return incolor - vec4(pull*0.2);
 }
 
 vec4 applyPlayerColor(vec4 incolor, vec2 pos, float size){
-    if(distance(Coords, pos) < size && false){
-        return vec4(0.0,0.0,0.0,0.0);
+
+    float dist = distance(Coords, pos);
+    if(dist > size){
+        return incolor;
     }
-    return incolor;
+
+    float glam = 0.0f;
+
+    glam = dist / size;
+    glam = glam * glam;
+
+    return incolor*(1+glam);
 }
 
 vec2 applyDistortions(){
