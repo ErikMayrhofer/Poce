@@ -7,12 +7,17 @@ uniform sampler2D texture_sampler;
 
 out vec4 outColor;
 
+#define PLAYER_R_WON 3
+#define PLAYER_L_WON 2
+
 uniform game_data{
     vec2 playerL;
     vec2 playerR;
     vec2 ball;
     vec2 fieldSize;
     int timeMS;
+    int gameState;
+    float stateAge;
 };
 
 uniform config_data{
@@ -52,7 +57,7 @@ vec2 distortPosition(vec2 incoords, vec2 center, float radius){
         return incoords;
     float pull = flattenFromInfinity(radius, dist, 500000);
 
-    vec2 r = rotate(mt,st,pull, 1.0, 0.8);
+    vec2 r = rotate(mt,st,pull*pull, 1.0, 0.8);
     return r;
 }
 
@@ -70,7 +75,7 @@ vec4 applyColor(vec4 incolor, vec2 pos, float size){
     return incolor - vec4(pull*0.2);
 }
 
-vec4 applyPlayerColor(vec4 incolor, vec2 pos, float size){
+vec4 applyPlayerColor(vec4 incolor, vec2 pos, float size, vec3 color){
 
     float dist = distance(Coords, pos);
     if(dist > size){
@@ -82,7 +87,7 @@ vec4 applyPlayerColor(vec4 incolor, vec2 pos, float size){
     glam = dist / size;
     glam = glam * glam;
 
-    return incolor*(1+glam);
+    return mix(incolor*(1+glam),vec4(color,1.0), 0.5);
 }
 
 vec2 applyDistortions(){
@@ -102,8 +107,8 @@ vec2 mirror(vec2 inpos){
 }
 
 vec4 applyColors(vec4 incolor){
-    incolor = applyPlayerColor(incolor, playerR, faceSize);
-    incolor = applyPlayerColor(incolor, playerL, faceSize);
+    incolor = applyPlayerColor(incolor, playerR, faceSize, vec3(1.0,0.0,0.0));
+    incolor = applyPlayerColor(incolor, playerL, faceSize, vec3(0.0,1.0,0.0));
     incolor = applyColor(incolor, ball, ballEffectSize);
     return incolor;
 }

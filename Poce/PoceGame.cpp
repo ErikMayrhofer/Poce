@@ -97,11 +97,12 @@ void PoceGame::init() {
         b2FixtureDef *fixtureDef = new b2FixtureDef();
         bodyDef->type = b2_dynamicBody;
         bodyDef->position.Set(widthInM / 2, heightInM / 2);
-        bodyDef->linearDamping = 1.0f;
+        bodyDef->linearDamping = 0.1f;
         shape->m_radius = this->config_data.ballSize*upixelToMeterRatio;
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
         fixtureDef->friction = 0.3f;
+        fixtureDef->restitution = 1.0f;
         this->ballBody = this->world->CreateBody(bodyDef);
         this->ballBody->CreateFixture(fixtureDef);
     }
@@ -137,14 +138,13 @@ void PoceGame::init() {
 }
 
 void PoceGame::loop(double deltaMS) {
+    this->game_data.stateAge += deltaMS;
+    std::cout << "Loop: " << this->game_data.gameState << " - " << this->game_data.stateAge << std::endl;
     cv::Size size = getApp()->getWindow()->getSize();
 
-    //std::cout << 1/(deltaMS/1000) << std::endl;
-
-
-    std::cerr << "3" << std::endl;
-
-
+    if(isWon() && this->game_data.stateAge > this->config_data.winTimeoutMS){
+        this->throwIn();
+    }
 
 
     texture->update();
@@ -154,7 +154,7 @@ void PoceGame::loop(double deltaMS) {
     float mWidth = texture->getMat().cols;
     float mHeight = texture->getMat().rows;
     float mAspect = mWidth / mHeight;
-    float cWidth = 1000;
+    float cWidth = this->config_data.fieldWithInPixel;
     float cHeight = cWidth / mAspect;
 
     float meterToPixelRatio = cWidth / config_data.fieldWidthInM; //meter * r = pixel
@@ -167,6 +167,7 @@ void PoceGame::loop(double deltaMS) {
     vertexBuffer->write(vertices, sizeof(vertices), true);
     game_data.fieldSize[0] = cWidth;
     game_data.fieldSize[1] = cHeight;
+    game_data.meterToPixelRatio = meterToPixelRatio;
     game_data.timeMS = static_cast<int>(std::chrono::system_clock::now().time_since_epoch().count() / 1000000);
 
     float vWidth = cWidth;
@@ -182,54 +183,64 @@ void PoceGame::loop(double deltaMS) {
 
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(calculateMVP(size.width, size.height, vWidth, vHeight)));
 
-    std::vector<FaceDetector::Point> noses = detector->detectNoses(texture->getMat(), cv::Size(640, 480));
-    if(!noses.empty()){
-        float plrX = static_cast<float>(noses[0].x) * cWidth;
-        float plrY = static_cast<float>(noses[0].y) * cHeight;
-        float sx = static_cast<float>((plrX - game_data.playerR[0]) / meterToPixelRatio / (deltaMS / 1000.f));
-        float sy = static_cast<float>((plrY - game_data.playerR[1]) / meterToPixelRatio / (deltaMS / 1000.f));
-        if(pRLost){
+    //std::vector<FaceDetector::Point> noses = detector->detectNoses(texture->getMat(), cv::Size(640, 480));
+
+    players plr = getPlayerPos();
+    double deltaS = deltaMS/1000.0f;
+    double fieldHeightInM = config_data.fieldWidthInM/mAspect;
+    if(plr.right.valid){
+        float plrX = plr.right.x * cWidth;
+        float plrY = plr.right.y * cHeight;
+        double sx = (plr.right.x*config_data.fieldWidthInM - lastPlayers.right.x*config_data.fieldWidthInM)/deltaS;
+        double sy = (plr.right.y*fieldHeightInM - lastPlayers.right.y*fieldHeightInM)/deltaS;
+
+        if(this->game_data.plRLost){
             this->pRBody->SetTransform(b2Vec2(plrX/meterToPixelRatio, plrY/meterToPixelRatio),
                     this->pRBody->GetAngle());
+            this->pRBody->SetLinearVelocity(b2Vec2(0, 0));
         }else{
             this->pRBody->SetLinearVelocity(b2Vec2(sx, sy));
         }
-        game_data.playerR[1] = plrY;
-        game_data.playerR[0] = plrX;
-        pRLost = false;
+        this->game_data.plRLost = false;
     }else{
-        pRLost = true;
+        this->game_data.plRLost = true;
     }
-    if(noses.size() > 1){
-        float plrX = static_cast<float>(noses[1].x) * cWidth;
-        float plrY = static_cast<float>(noses[1].y) * cHeight;
-        float sx = static_cast<float>((plrX - game_data.playerR[0]) / meterToPixelRatio / deltaMS / 1000.f);
-        float sy = static_cast<float>((plrY - game_data.playerR[1]) / meterToPixelRatio / deltaMS / 1000.f);
-        if(pLLost){
+    if(plr.left.valid){
+        float plrX = plr.left.x * cWidth;
+        float plrY = plr.left.y * cHeight;
+        double sx = (plr.left.x*config_data.fieldWidthInM - lastPlayers.left.x*config_data.fieldWidthInM)/deltaS;
+        double sy = (plr.left.y*fieldHeightInM - lastPlayers.left.y*fieldHeightInM)/deltaS;
+        if(this->game_data.plLLost){
             this->pLBody->SetTransform(b2Vec2(plrX/meterToPixelRatio, plrY/meterToPixelRatio),
                                        this->pLBody->GetAngle());
+            this->pLBody->SetLinearVelocity(b2Vec2(0, 0));
         }else{
             this->pLBody->SetLinearVelocity(b2Vec2(sx, sy));
         }
-        game_data.playerL[1] = plrY;
-        game_data.playerL[0] = plrX;
-        pLLost = false;
+        this->game_data.plLLost = false;
     }else{
-        pLLost = true;
+        this->game_data.plLLost = true;
     }
+    this->lastPlayers = plr;
 
 
     this->world->Step(static_cast<float32>(deltaMS / 1000), 6, 2);
     game_data.ball[0] = this->ballBody->GetPosition().x * meterToPixelRatio;
     game_data.ball[1] = this->ballBody->GetPosition().y * meterToPixelRatio;
-
-    //std::cout << game_data.ball[0] << " " << game_data.ball[1] << std::endl;
-    std::cout << "--" << this->pRBody->GetPosition().x << " " << this->pRBody->GetPosition().y << std::endl;
-    std::cout << "--" << this->pLBody->GetPosition().x << " " << this->pLBody->GetPosition().y << std::endl;
+    game_data.playerR[0] = this->pRBody->GetPosition().x*meterToPixelRatio;
+    game_data.playerR[1] = this->pRBody->GetPosition().y*meterToPixelRatio;
+    game_data.playerL[0] = this->pLBody->GetPosition().x*meterToPixelRatio;
+    game_data.playerL[1] = this->pLBody->GetPosition().y*meterToPixelRatio;
 
     gameDataBuffer->write(&game_data, sizeof(game_data), true);
 
-
+    if(this->game_data.gameState == GameStates::Playing) {
+        if (game_data.ball[0] < config_data.goalAreaInPixel) {
+            this->changeState(GameStates::PlayerLWon);
+        } else if (game_data.ball[0] > config_data.fieldWithInPixel - config_data.goalAreaInPixel) {
+            this->changeState(GameStates::PlayerRWon);
+        }
+    }
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
@@ -239,4 +250,52 @@ PoceGame::~PoceGame() {
     delete texture;
     delete vertexBuffer;
     delete gameDataBuffer;
+}
+
+void PoceGame::changeState(GameStates state) {
+    std::cout << "Changing state to: " << state << std::endl;
+    this->game_data.gameState = state;
+    this->game_data.stateAge = 0;
+}
+
+bool PoceGame::isWon() {
+    return this->game_data.gameState == GameStates::PlayerRWon ||
+            this->game_data.gameState == GameStates::PlayerLWon;
+}
+
+bool PoceGame::isPaused() {
+    return this->game_data.gameState == GameStates::Paused || isWon();
+}
+
+void PoceGame::throwIn() {
+    std::cout << "Trow in" << std::endl;
+    this->ballBody->SetTransform(b2Vec2(
+            this->game_data.fieldSize[0]/2/this->game_data.meterToPixelRatio,
+            this->game_data.fieldSize[1]/2/this->game_data.meterToPixelRatio
+                               ),
+                               this->ballBody->GetAngle());
+    this->ballBody->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+    changeState(GameStates::Playing);
+    this->game_data.plRLost = true;
+    this->game_data.plLLost = true;
+
+}
+
+players PoceGame::getPlayerPos() {
+    players plrs = this->lastPlayers;
+    plrs.right.valid = false;
+    plrs.left.valid = false;
+    std::vector<FaceDetector::Point> noses = detector->detectNoses(texture->getMat(), cv::Size(640, 480));
+    for (auto &nose : noses) {
+        if (nose.x < 0.5) {
+            plrs.left.x = static_cast<float>(nose.x);
+            plrs.left.y = static_cast<float>(nose.y);
+            plrs.left.valid = true;
+        } else {
+            plrs.right.x = static_cast<float>(nose.x);
+            plrs.right.y = static_cast<float>(nose.y);
+            plrs.right.valid = true;
+        }
+    }
+    return plrs;
 }

@@ -14,6 +14,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+enum GameStates : int{
+    Playing = 0,
+    Paused = 1,
+    PlayerLWon = 2,
+    PlayerRWon = 3
+};
+
 struct XYUV {
     float x, y;
     float u, v;
@@ -26,6 +33,11 @@ struct ubo_data_game_data{
     float ball[2];
     float fieldSize[2];
     int timeMS;
+    int gameState;
+    float stateAge;
+    float meterToPixelRatio;
+    bool plLLost;
+    bool plRLost;
 };
 
 struct ubo_config_data{
@@ -34,6 +46,18 @@ struct ubo_config_data{
     float ballEffectSize;
     float fieldWidthInM;
     float fieldWithInPixel;
+    float goalAreaInPixel;
+    float winTimeoutMS;
+};
+
+struct player_pos{
+    float x;
+    float y;
+    bool valid;
+};
+struct players{
+    player_pos left;
+    player_pos right;
 };
 
 class PoceGame : public Game{
@@ -44,6 +68,11 @@ public:
 
     ~PoceGame() override;
 private:
+    void changeState(GameStates state);
+    bool isWon();
+    bool isPaused();
+    void throwIn();
+    players getPlayerPos();
 
     ShaderProgram* program;
     FaceDetector* detector;
@@ -69,7 +98,9 @@ private:
             30.0, //BallSize
             400.0, //BallEffectSize
             2, //FieldWidthinM
-            1000 //FieldWidthInPixel
+            1000, //FieldWidthInPixel
+            0,
+            1000, //WinTimeout
     };
 
     b2Body* groundBody;
@@ -79,8 +110,8 @@ private:
     b2Body* pRBody;
     b2Body* pLBody;
 
-    bool pRLost = false;
-    bool pLLost = false;
+    players lastPlayers;
+
 };
 
 #endif //DLIBTEST_POCEGAME_H
