@@ -79,7 +79,7 @@ void PoceGame::init() {
         bodyDef->position.Set(widthInM/2, heightInM+1.0f);
         shape->SetAsBox(widthInM/2, 1.0f);
         fixtureDef->shape = shape;
-        fixtureDef->restitution = 1.0f;
+        fixtureDef->restitution = 0.5f;
         this->groundBody = this->world->CreateBody(bodyDef);
         this->groundBody->CreateFixture(fixtureDef);
     }
@@ -92,7 +92,7 @@ void PoceGame::init() {
         bodyDef->position.Set(widthInM/2.f, -1.f);
         shape->SetAsBox(widthInM/2, 1.f);
         fixtureDef->shape = shape;
-        fixtureDef->restitution = 1.0f;
+        fixtureDef->restitution = 0.5f;
         this->groundBody = this->world->CreateBody(bodyDef);
         this->groundBody->CreateFixture(fixtureDef);
     }
@@ -108,7 +108,7 @@ void PoceGame::init() {
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
         fixtureDef->friction = 0.3f;
-        fixtureDef->restitution = 1.0f;
+        fixtureDef->restitution = 0.5f;
         this->ballBody = this->world->CreateBody(bodyDef);
         this->ballBody->CreateFixture(fixtureDef);
     }
@@ -194,8 +194,9 @@ void PoceGame::loop(double deltaMS) {
     if(plr.right.valid){
         float plrX = plr.right.x * cWidth;
         float plrY = plr.right.y * cHeight;
-        double sx = (plr.right.x*config_data.fieldWidthInM - lastPlayers.right.x*config_data.fieldWidthInM)/deltaS;
-        double sy = (plr.right.y*fieldHeightInM - lastPlayers.right.y*fieldHeightInM)/deltaS;
+        float sx = static_cast<float>(
+                (plr.right.x * config_data.fieldWidthInM - lastPlayers.right.x * config_data.fieldWidthInM) / deltaS);
+        float sy = static_cast<float>((plr.right.y * fieldHeightInM - lastPlayers.right.y * fieldHeightInM) / deltaS);
 
         if(this->game_data.plRLost){
             this->pRBody->SetTransform(b2Vec2(plrX/meterToPixelRatio, plrY/meterToPixelRatio),
@@ -211,8 +212,9 @@ void PoceGame::loop(double deltaMS) {
     if(plr.left.valid){
         float plrX = plr.left.x * cWidth;
         float plrY = plr.left.y * cHeight;
-        double sx = (plr.left.x*config_data.fieldWidthInM - lastPlayers.left.x*config_data.fieldWidthInM)/deltaS;
-        double sy = (plr.left.y*fieldHeightInM - lastPlayers.left.y*fieldHeightInM)/deltaS;
+        float sx = static_cast<float>(
+                (plr.left.x * config_data.fieldWidthInM - lastPlayers.left.x * config_data.fieldWidthInM) / deltaS);
+        float sy = static_cast<float>((plr.left.y * fieldHeightInM - lastPlayers.left.y * fieldHeightInM) / deltaS);
         if(this->game_data.plLLost){
             this->pLBody->SetTransform(b2Vec2(plrX/meterToPixelRatio, plrY/meterToPixelRatio),
                                        this->pLBody->GetAngle());
