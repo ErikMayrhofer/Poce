@@ -69,7 +69,7 @@ void PoceGame::init() {
     float upixelToMeterRatio = this->config_data.fieldWidthInM/this->config_data.fieldWithInPixel; //p * upm = m
 
     //World
-    this->world = new b2World(b2Vec2(0.0f, 0.0f));
+    this->world = new b2World(b2Vec2(0.0f, 0.001f));
     {
         //Ground
         b2BodyDef* bodyDef = new b2BodyDef();
@@ -79,7 +79,9 @@ void PoceGame::init() {
         bodyDef->position.Set(widthInM/2, heightInM+1.0f);
         shape->SetAsBox(widthInM/2, 1.0f);
         fixtureDef->shape = shape;
-        fixtureDef->restitution = 0.5f;
+        fixtureDef->density = 1.0f;
+        fixtureDef->restitution = 1.0f;
+        fixtureDef->friction = 0.0f;
         this->groundBody = this->world->CreateBody(bodyDef);
         this->groundBody->CreateFixture(fixtureDef);
     }
@@ -92,7 +94,9 @@ void PoceGame::init() {
         bodyDef->position.Set(widthInM/2.f, -1.f);
         shape->SetAsBox(widthInM/2, 1.f);
         fixtureDef->shape = shape;
-        fixtureDef->restitution = 0.5f;
+        fixtureDef->density = 1.0f;
+        fixtureDef->restitution = 1.0f;
+        fixtureDef->friction = 0.0f;
         this->groundBody = this->world->CreateBody(bodyDef);
         this->groundBody->CreateFixture(fixtureDef);
     }
@@ -103,12 +107,12 @@ void PoceGame::init() {
         b2FixtureDef *fixtureDef = new b2FixtureDef();
         bodyDef->type = b2_dynamicBody;
         bodyDef->position.Set(widthInM / 2, heightInM / 2);
-        bodyDef->linearDamping = 0.1f;
+        bodyDef->linearDamping = 0.0f;
         shape->m_radius = this->config_data.ballSize*upixelToMeterRatio;
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
-        fixtureDef->friction = 0.3f;
-        fixtureDef->restitution = 0.5f;
+        fixtureDef->friction = 0.0f;
+        fixtureDef->restitution = 1.0f;
         this->ballBody = this->world->CreateBody(bodyDef);
         this->ballBody->CreateFixture(fixtureDef);
     }
@@ -123,6 +127,7 @@ void PoceGame::init() {
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
         fixtureDef->friction = 0.3f;
+        fixtureDef->restitution = 1.0f;
         this->pRBody = this->world->CreateBody(bodyDef);
         this->pRBody->CreateFixture(fixtureDef);
     }
@@ -137,6 +142,7 @@ void PoceGame::init() {
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
         fixtureDef->friction = 0.3f;
+        fixtureDef->restitution = 1.0f;
         this->pLBody = this->world->CreateBody(bodyDef);
         this->pLBody->CreateFixture(fixtureDef);
     }
