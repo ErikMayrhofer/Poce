@@ -68,16 +68,18 @@ void PoceGame::init() {
     float heightInM = widthInM / mAspect;
     float upixelToMeterRatio = this->config_data.fieldWidthInM/this->config_data.fieldWithInPixel; //p * upm = m
 
+
     //World
-    this->world = new b2World(b2Vec2(0.0f, 0.001f));
+    this->world = new b2World(b2Vec2(0.0f, 0.0f));
     {
         //Ground
-        b2BodyDef* bodyDef = new b2BodyDef();
-        b2FixtureDef *fixtureDef = new b2FixtureDef();
-        b2PolygonShape* shape = new b2PolygonShape();
+        auto * bodyDef = new b2BodyDef();
+        auto *fixtureDef = new b2FixtureDef();
+        auto * shape = new b2PolygonShape();
+        shape->SetAsBox(widthInM/2, 1.0f);
         bodyDef->type = b2_staticBody;
         bodyDef->position.Set(widthInM/2, heightInM+1.0f);
-        shape->SetAsBox(widthInM/2, 1.0f);
+        bodyDef->allowSleep=false;
         fixtureDef->shape = shape;
         fixtureDef->density = 1.0f;
         fixtureDef->restitution = 1.0f;
@@ -87,65 +89,70 @@ void PoceGame::init() {
     }
     {
         //Top
-        b2BodyDef* bodyDef = new b2BodyDef();
-        b2FixtureDef *fixtureDef = new b2FixtureDef();
-        b2PolygonShape* shape = new b2PolygonShape();
+        auto * bodyDef = new b2BodyDef();
+        auto *fixtureDef = new b2FixtureDef();
+        auto * shape = new b2PolygonShape();
         bodyDef->type = b2_staticBody;
         bodyDef->position.Set(widthInM/2.f, -1.f);
+        bodyDef->allowSleep=false;
         shape->SetAsBox(widthInM/2, 1.f);
         fixtureDef->shape = shape;
         fixtureDef->density = 1.0f;
         fixtureDef->restitution = 1.0f;
         fixtureDef->friction = 0.0f;
+
         this->groundBody = this->world->CreateBody(bodyDef);
         this->groundBody->CreateFixture(fixtureDef);
     }
     {
         //Ball
-        b2BodyDef *bodyDef = new b2BodyDef();
-        b2CircleShape *shape = new b2CircleShape();
-        b2FixtureDef *fixtureDef = new b2FixtureDef();
+        auto *bodyDef = new b2BodyDef();
+        auto *shape = new b2CircleShape();
+        auto *fixtureDef = new b2FixtureDef();
         bodyDef->type = b2_dynamicBody;
         bodyDef->position.Set(widthInM / 2, heightInM / 2);
         bodyDef->linearDamping = 0.0f;
+        bodyDef->allowSleep=false;
+        bodyDef->bullet=true;
         shape->m_radius = this->config_data.ballSize*upixelToMeterRatio;
         fixtureDef->shape = shape;
-        fixtureDef->density = 20.f;
-        fixtureDef->friction = 0.0f;
-        fixtureDef->restitution = 1.0f;
+        fixtureDef->density = 100.f;
+        fixtureDef->friction = 0.f;
+        fixtureDef->restitution = 1.f;
         this->ballBody = this->world->CreateBody(bodyDef);
         this->ballBody->CreateFixture(fixtureDef);
     }
     { //TODO Force sync with Faces at startup
         //Player1
-        b2BodyDef *bodyDef = new b2BodyDef();
-        b2CircleShape *shape = new b2CircleShape();
-        b2FixtureDef *fixtureDef = new b2FixtureDef();
+        auto *bodyDef = new b2BodyDef();
+        auto *shape = new b2CircleShape();
+        auto *fixtureDef = new b2FixtureDef();
         bodyDef->type = b2_kinematicBody;
         bodyDef->position.Set(0, 0);
         shape->m_radius = this->config_data.faceSize*upixelToMeterRatio;
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
-        fixtureDef->friction = 0.3f;
+        fixtureDef->friction = 0.0f;
         fixtureDef->restitution = 1.0f;
         this->pRBody = this->world->CreateBody(bodyDef);
         this->pRBody->CreateFixture(fixtureDef);
     }
     {
         //Player2
-        b2BodyDef *bodyDef = new b2BodyDef();
-        b2CircleShape *shape = new b2CircleShape();
-        b2FixtureDef *fixtureDef = new b2FixtureDef();
+        auto *bodyDef = new b2BodyDef();
+        auto *shape = new b2CircleShape();
+        auto *fixtureDef = new b2FixtureDef();
         bodyDef->type = b2_kinematicBody;
         bodyDef->position.Set(0, 0);
         shape->m_radius = this->config_data.faceSize*upixelToMeterRatio;
         fixtureDef->shape = shape;
         fixtureDef->density = 20.f;
-        fixtureDef->friction = 0.3f;
+        fixtureDef->friction = 0.0f;
         fixtureDef->restitution = 1.0f;
         this->pLBody = this->world->CreateBody(bodyDef);
         this->pLBody->CreateFixture(fixtureDef);
     }
+
     this->throwIn();
 }
 
@@ -235,7 +242,7 @@ void PoceGame::loop(double deltaMS) {
     this->lastPlayers = plr;
 
 
-    this->world->Step(static_cast<float32>(deltaMS / 1000), 6, 2);
+    this->world->Step(static_cast<float32>(deltaMS / 1000), 4, 2);
     game_data.ball[0] = this->ballBody->GetPosition().x * meterToPixelRatio;
     game_data.ball[1] = this->ballBody->GetPosition().y * meterToPixelRatio;
     game_data.playerR[0] = this->pRBody->GetPosition().x* meterToPixelRatio;

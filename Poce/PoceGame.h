@@ -97,7 +97,7 @@ private:
             100.0, //FaceSize,
             30.0, //BallSize
             400.0, //BallEffectSize
-            2, //FieldWidthinM
+            20, //FieldWidthinM
             1000, //FieldWidthInPixel
             0,
             1000, //WinTimeout
