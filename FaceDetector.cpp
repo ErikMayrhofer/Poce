@@ -6,6 +6,7 @@
 #include "monitoring.h"
 #include "FaceDetector.h"
 #include <opencv2/highgui.hpp>
+#include "profiler.h"
 
 FaceDetector::FaceDetector(std::string modelPath) : pose_model(){
     deserialize(modelPath) >> pose_model;
@@ -19,11 +20,15 @@ std::vector<FaceDetector::Rect> FaceDetector::detectOutlines(cv_image<rgb_pixel>
 }
 
 std::vector<FaceDetector::Point> FaceDetector::detectNoses(cv::Mat image, cv::Size viewSize) {
+    TIMER_INIT;
     cv::Mat scaled;
     cv::resize(image, scaled, viewSize);
     cv_image<rgb_pixel> dlibImage(scaled);
+    TIMER_OUTPUT("Setup")
     auto detections = this->detectOutlines(dlibImage);
+    TIMER_OUTPUT("Outlines")
     std::vector<FaceDetector::Point> noses(detections.size());
+    TIMER_OUTPUT("Noses")
     auto noseIterator = noses.begin();
     for (const auto &face : detections){
         full_object_detection detection = pose_model(dlibImage, face);
@@ -33,6 +38,7 @@ std::vector<FaceDetector::Point> FaceDetector::detectNoses(cv::Mat image, cv::Si
                 noseTip.y() / (float)viewSize.height
                 );
     }
+    TIMER_OUTPUT("Extract tip")
     return noses;
 }
 

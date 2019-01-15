@@ -3,6 +3,7 @@
 //
 
 #include "PoceGame.h"
+#include "../profiler.h"
 
 glm::mat4x4 calculateMVP(int width, int height, float vpWidth, float vpHeight){
     glViewport(0, 0, width, height);
@@ -14,8 +15,19 @@ glm::mat4x4 calculateMVP(int width, int height, float vpWidth, float vpHeight){
     return mvp;
 }
 
-
 void PoceGame::init() {
+
+    font = new FTGLPixmapFont("fonts/arial.ttf");
+    auto error = font->Error();
+    if(error){
+        std::cout << "Font-Error: " << error << std::endl;
+    }
+    font->FaceSize(72);
+    font->Render("Hello World");
+    std::cout << "Hello World" << std::endl;
+
+
+
     struct
     {
         float x, y;
@@ -157,6 +169,10 @@ void PoceGame::init() {
 }
 
 void PoceGame::loop(double deltaMS) {
+    TIMER_INIT;
+    TIMER_OUTPUT("Start")
+
+    std::cout << "FPS: " << 1000/deltaMS << std::endl;
     this->game_data.stateAge += deltaMS;
     std::cout << "Loop: " << this->game_data.gameState << " - " << this->game_data.stateAge << std::endl;
     cv::Size size = getApp()->getWindow()->getSize();
@@ -164,6 +180,8 @@ void PoceGame::loop(double deltaMS) {
     if(isWon() && this->game_data.stateAge > this->config_data.winTimeoutMS){
         this->throwIn();
     }
+
+    TIMER_OUTPUT("Game Data")
 
     texture->update();
     float wWidth = size.width;
@@ -198,18 +216,23 @@ void PoceGame::loop(double deltaMS) {
         vHeight = vWidth / wAspect;
     }
 
+    TIMER_OUTPUT("Calc Physix")
+
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(calculateMVP(size.width, size.height, vWidth, vHeight)));
 
 
+    TIMER_OUTPUT("Push Matrix");
     players plr = getPlayerPos();
+    TIMER_OUTPUT("Playerpos");
+
     double deltaS = deltaMS/1000.0f;
     double fieldHeightInM = config_data.fieldWidthInM/mAspect;
     if(plr.right.valid){
         float plrX = plr.right.x * cWidth;
         float plrY = plr.right.y * cHeight;
-        float sx = static_cast<float>(
+        auto sx = static_cast<float>(
                 (plr.right.x * config_data.fieldWidthInM - lastPlayers.right.x * config_data.fieldWidthInM) / deltaS);
-        float sy = static_cast<float>((plr.right.y * fieldHeightInM - lastPlayers.right.y * fieldHeightInM) / deltaS);
+        auto sy = static_cast<float>((plr.right.y * fieldHeightInM - lastPlayers.right.y * fieldHeightInM) / deltaS);
 
         if(this->game_data.plRLost){
             this->pRBody->SetTransform(b2Vec2(plrX/meterToPixelRatio, plrY/meterToPixelRatio),
@@ -225,9 +248,9 @@ void PoceGame::loop(double deltaMS) {
     if(plr.left.valid){
         float plrX = plr.left.x * cWidth;
         float plrY = plr.left.y * cHeight;
-        float sx = static_cast<float>(
+        auto sx = static_cast<float>(
                 (plr.left.x * config_data.fieldWidthInM - lastPlayers.left.x * config_data.fieldWidthInM) / deltaS);
-        float sy = static_cast<float>((plr.left.y * fieldHeightInM - lastPlayers.left.y * fieldHeightInM) / deltaS);
+        auto sy = static_cast<float>((plr.left.y * fieldHeightInM - lastPlayers.left.y * fieldHeightInM) / deltaS);
         if(this->game_data.plLLost){
             this->pLBody->SetTransform(b2Vec2(plrX/meterToPixelRatio, plrY/meterToPixelRatio),
                                        this->pLBody->GetAngle());
@@ -240,7 +263,16 @@ void PoceGame::loop(double deltaMS) {
         this->game_data.plLLost = true;
     }
     this->lastPlayers = plr;
-
+    if(!plr.left.valid || !plr.right.valid){
+        this->game_data.playerLostMillis+=deltaMS;
+    }else{
+        this->game_data.playerLostMillis = 0.0;
+    }
+    if(this->game_data.playerLostMillis > 500){
+        if(!this->config_data.allowSinglePlayer) {
+            this->changeState(GameStates::WaitingForPlayers);
+        }
+    }
 
     this->world->Step(static_cast<float32>(deltaMS / 1000), 4, 2);
     game_data.ball[0] = this->ballBody->GetPosition().x * meterToPixelRatio;
@@ -250,16 +282,32 @@ void PoceGame::loop(double deltaMS) {
     game_data.playerL[0] = this->pLBody->GetPosition().x* meterToPixelRatio;
     game_data.playerL[1] = this->pLBody->GetPosition().y* meterToPixelRatio;
 
+
+    TIMER_OUTPUT("Control")
+
     if(this->game_data.gameState == GameStates::Playing) {
         if (game_data.ball[0] < config_data.goalAreaInPixel) {
             this->changeState(GameStates::PlayerLWon);
         } else if (game_data.ball[0] > config_data.fieldWithInPixel - config_data.goalAreaInPixel) {
             this->changeState(GameStates::PlayerRWon);
         }
+    }else if(this->game_data.gameState == GameStates::WaitingForPlayers){
+        if(plr.left.valid && plr.right.valid){
+            this->changeState(GameStates::Playing);
+        }
     }
+
+
+    TIMER_OUTPUT("Logic")
+
 
     gameDataBuffer->write(&game_data, sizeof(game_data), true);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    font->Render("Hello World");
+
+
+    TIMER_OUTPUT("Render")
 }
 
 PoceGame::~PoceGame() {
@@ -267,6 +315,7 @@ PoceGame::~PoceGame() {
     delete detector;
     delete texture;
     delete vertexBuffer;
+    delete font;
     delete gameDataBuffer;
 }
 
@@ -300,10 +349,13 @@ void PoceGame::throwIn() {
 }
 
 players PoceGame::getPlayerPos() {
+    TIMER_INIT;
     players plrs = this->lastPlayers;
     plrs.right.valid = false;
     plrs.left.valid = false;
+    TIMER_OUTPUT("Setup")
     std::vector<FaceDetector::Point> noses = detector->detectNoses(texture->getMat(), cv::Size(640, 480));
+    TIMER_OUTPUT("Detector")
     for (auto &nose : noses) {
         if (nose.x < 0.5) {
             plrs.left.x = static_cast<float>(nose.x);
@@ -315,5 +367,30 @@ players PoceGame::getPlayerPos() {
             plrs.right.valid = true;
         }
     }
+    TIMER_OUTPUT("Side-Choose")
     return plrs;
+}
+
+void PoceGame::deactivateState(GameStates state) {
+    switch(state){
+        case GameStates::Playing:
+            this->ballBody->SetType(b2BodyType::b2_staticBody);
+            break;
+        case Paused:break;
+        case PlayerLWon:break;
+        case PlayerRWon:break;
+        case WaitingForPlayers:break;
+    }
+}
+
+void PoceGame::activateState(GameStates state) {
+    switch(state){
+        case GameStates::Playing:
+            this->ballBody->SetType(b2BodyType::b2_dynamicBody);
+            break;
+        case Paused:break;
+        case PlayerLWon:break;
+        case PlayerRWon:break;
+        case WaitingForPlayers:break;
+    }
 }
