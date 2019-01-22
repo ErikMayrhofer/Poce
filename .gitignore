@@ -1,4 +1,8 @@
 
+# CRECODE
+cmake-build-release
+shape_predictor_68_face_landmarks.dat
+
 # Created by https://www.gitignore.io/api/kate,linux,python,windows,pycharm,pycharm+all,pycharm+iml
 
 ### Kate ###
