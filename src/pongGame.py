@@ -12,6 +12,10 @@ from src.pongConfig import CONFIG
 from src.pongRenderer import PongRenderer, TextAlign
 
 
+PONG_GAME_QUIT = 0
+PONG_GAME_RESTART = 1
+
+
 class PongGame:
     def __init__(self):
         self.cap = cv2.VideoCapture(CONFIG.cam)
@@ -58,7 +62,9 @@ class PongGame:
 
                 self.renderer.render(img, self, self.state)
 
-                self.handle_events()
+                a = self.handle_events()
+                if a >= 0:
+                    return a
 
         except KeyboardInterrupt:
             pygame.quit()
@@ -71,13 +77,17 @@ class PongGame:
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
+                print(event.key)
                 if event.key == 27 or event.key == 113:
-                    sys.exit(0)
+                    return PONG_GAME_QUIT
+                if event.key == 114:
+                    return PONG_GAME_RESTART
             elif event.type == pygame.VIDEORESIZE:
                 # TODO What did I want do do here?
                 # screen = pygame.display.set_mode(event.dict['size'],
                 #                                 pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.FULLSCREEN)
                 pygame.display.flip()
+        return -1
 
     def get_image(self):
         if self.last_img is None or time.time() - self.last_img_time > (1 / CONFIG.graphics.target_cam_fps):
