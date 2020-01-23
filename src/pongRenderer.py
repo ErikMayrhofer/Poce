@@ -7,7 +7,6 @@ from src.pongConfig import CONFIG
 from enum import Enum
 
 
-
 class TextAlign(Enum):
     LEFT = 0
     RIGHT = 1
@@ -22,6 +21,7 @@ class BlitLater:
 
     def blit(self):
         self.canvas.blit(self.to_blit, self.pos)
+
 
 class PongRenderer:
     def __init__(self, cam_size, window_size):

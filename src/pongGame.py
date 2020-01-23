@@ -150,7 +150,7 @@ class ReadyState(GameState):
 
         mat = cv2.blur(mat, (20, 20))
         img = cv2.multiply(cv2.cvtColor(video, cv2.COLOR_RGB2GRAY), 0.5)
-        img = cv2.blur(img, (50, 50))
+        img = cv2.blur(img, (10, 10))
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
         img = cv2.multiply(img, 1 - mat, dtype=3)
         video = cv2.multiply(video, mat, dtype=3)
