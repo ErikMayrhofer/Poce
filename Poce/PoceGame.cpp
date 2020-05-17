@@ -290,8 +290,10 @@ void PoceGame::loop(double deltaMS) {
     if(this->game_data.gameState == GameStates::Playing) {
         if (game_data.ball[0] < config_data.goalAreaInPixel) {
             this->changeState(GameStates::PlayerLWon);
+            pointsLeft += 1;
         } else if (game_data.ball[0] > config_data.fieldWithInPixel - config_data.goalAreaInPixel) {
             this->changeState(GameStates::PlayerRWon);
+            pointsRight += 1;
         }
     }else if(this->game_data.gameState == GameStates::WaitingForPlayers){
         if(plr.left.valid && plr.right.valid){
@@ -309,7 +311,7 @@ void PoceGame::loop(double deltaMS) {
     glUseProgram(0);
     font->Render("Hello World");
     std::stringstream s;
-    s << "Hello World" << deltaMS;
+    s << "Hello World" << pointsLeft << " - " << pointsRight;
     font->Render(s.str().c_str());
     program->use();
 

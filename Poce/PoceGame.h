@@ -121,6 +121,9 @@ private:
     players lastPlayers;
 
     FTGLPixmapFont* font;
+
+    int pointsLeft = 0;
+    int pointsRight = 0;
 };
 
 #endif //DLIBTEST_POCEGAME_H
