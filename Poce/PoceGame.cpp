@@ -3,6 +3,7 @@
 //
 
 #include "PoceGame.h"
+#include <Box2D/Box2D.h>
 #include "../profiler.h"
 
 glm::mat4x4 calculateMVP(int width, int height, float vpWidth, float vpHeight){

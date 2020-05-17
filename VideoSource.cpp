@@ -20,7 +20,7 @@ VideoSource::~VideoSource() {
 
 void VideoSource::refresh() {
     this->capture >> this->currentMat;
-    cv::cvtColor(this->currentMat, this->currentMat, CV_BGR2RGB);
+    cv::cvtColor(this->currentMat, this->currentMat, cv::COLOR_BGR2RGB);
 }
 
 const uchar *VideoSource::getData() const {
