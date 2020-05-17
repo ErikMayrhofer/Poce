@@ -34,7 +34,7 @@ void PoceGame::init() {
     {
         float x, y;
         float u, v;
-    } vertices[4] =
+    } screenVertices[4] =
             {
                     {  0.f,  0.f,  0.f,  0.f },
                     {  0.f,  1.f,  0.f,  1.f },
@@ -54,7 +54,7 @@ void PoceGame::init() {
     texture->setUniformToUnit(program->getUniformLocation("texture_sampler"));
 
     vertexBuffer = new Buffer<float>(BufferType::Array, DynamicDraw);
-    vertexBuffer->write(vertices, sizeof(vertices), true);
+    vertexBuffer->write(screenVertices, sizeof(screenVertices), true);
 
     gameDataBuffer = new Buffer<float>(BufferType::Uniform, DynamicDraw);
     gameDataBuffer->write(&game_data, sizeof(game_data), true);
@@ -75,12 +75,12 @@ void PoceGame::init() {
 
     //Setup Game Data
     texture->update();
-    float mWidth = texture->getMat().cols;
-    float mHeight = texture->getMat().rows;
-    float mAspect = mWidth / mHeight; //a = w / h -> w = a * h
-    float widthInM = this->config_data.fieldWidthInM;
-    float heightInM = widthInM / mAspect;
-    float upixelToMeterRatio = this->config_data.fieldWidthInM/this->config_data.fieldWithInPixel; //p * upm = m
+    double mWidth = texture->getMat().cols;
+    double mHeight = texture->getMat().rows;
+    double mAspect = mWidth / mHeight; //a = w / h -> w = a * h
+    double widthInM = this->config_data.fieldWidthInM;
+    double heightInM = widthInM / mAspect;
+    double upixelToMeterRatio = this->config_data.fieldWidthInM/this->config_data.fieldWithInPixel; //p * upm = m
 
 
     //World
@@ -171,11 +171,11 @@ void PoceGame::init() {
 }
 
 void PoceGame::loop(double deltaMS) {
-    TIMER_INIT;
+    TIMER_INIT
     TIMER_OUTPUT("Start")
 
     std::cout << "FPS: " << 1000/deltaMS << std::endl;
-    this->game_data.stateAge += deltaMS;
+    this->game_data.stateAge += static_cast<float>(deltaMS);
     std::cout << "Loop: " << this->game_data.gameState << " - " << this->game_data.stateAge << std::endl;
     cv::Size size = getApp()->getWindow()->getSize();
 
@@ -189,8 +189,8 @@ void PoceGame::loop(double deltaMS) {
     float wWidth = size.width;
     float wHeight = size.height;
     float wAspect = wWidth/wHeight; //a = w/h ----- w = a * h ----- h = w / a
-    float mWidth = texture->getMat().cols;
-    float mHeight = texture->getMat().rows;
+    float mWidth = static_cast<float>(texture->getMat().cols);
+    float mHeight = static_cast<float>(texture->getMat().rows);
     float mAspect = mWidth / mHeight;
     float cWidth = this->config_data.fieldWithInPixel;
     float cHeight = cWidth / mAspect;
@@ -223,9 +223,9 @@ void PoceGame::loop(double deltaMS) {
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(calculateMVP(size.width, size.height, vWidth, vHeight)));
 
 
-    TIMER_OUTPUT("Push Matrix");
+    TIMER_OUTPUT("Push Matrix")
     players plr = getPlayerPos();
-    TIMER_OUTPUT("Playerpos");
+    TIMER_OUTPUT("Playerpos")
 
     double deltaS = deltaMS/1000.0f;
     double fieldHeightInM = config_data.fieldWidthInM/mAspect;
@@ -266,7 +266,7 @@ void PoceGame::loop(double deltaMS) {
     }
     this->lastPlayers = plr;
     if(!plr.left.valid || !plr.right.valid){
-        this->game_data.playerLostMillis+=deltaMS;
+        this->game_data.playerLostMillis+=static_cast<float>(deltaMS);
     }else{
         this->game_data.playerLostMillis = 0.0;
     }
@@ -309,7 +309,7 @@ void PoceGame::loop(double deltaMS) {
     glUseProgram(0);
     font->Render("Hello World");
     std::stringstream s;
-    s << "Hello World" << (deltaMS++);
+    s << "Hello World" << deltaMS;
     font->Render(s.str().c_str());
     program->use();
 
@@ -332,7 +332,7 @@ void PoceGame::changeState(GameStates state) {
     this->game_data.stateAge = 0;
 }
 
-bool PoceGame::isWon() {
+bool PoceGame::isWon() const {
     return this->game_data.gameState == GameStates::PlayerRWon ||
             this->game_data.gameState == GameStates::PlayerLWon;
 }
@@ -356,7 +356,7 @@ void PoceGame::throwIn() {
 }
 
 players PoceGame::getPlayerPos() {
-    TIMER_INIT;
+    TIMER_INIT
     players plrs = this->lastPlayers;
     plrs.right.valid = false;
     plrs.left.valid = false;
@@ -395,7 +395,7 @@ void PoceGame::activateState(GameStates state) {
         case GameStates::Playing:
             this->ballBody->SetType(b2BodyType::b2_dynamicBody);
             break;
-        case Paused:break;
+        case Paused: break;
         case PlayerLWon:break;
         case PlayerRWon:break;
         case WaitingForPlayers:break;

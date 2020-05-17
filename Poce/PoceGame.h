@@ -74,7 +74,7 @@ public:
 
 private:
     void changeState(GameStates state);
-    bool isWon();
+    bool isWon() const;
     bool isPaused();
     void deactivateState(GameStates state);
     void activateState(GameStates state);
