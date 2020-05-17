@@ -87,6 +87,11 @@ void ShaderProgram::use() {
     glUseProgram(this->program);
 }
 
+void ShaderProgram::unUse() {
+    requireGood();
+    glUseProgram(0);
+}
+
 GLuint ShaderProgram::getUniformBlockIndex(std::string name) {
     requireGood();
     GLuint loc = glGetUniformBlockIndex(this->program, name.c_str());

@@ -30,6 +30,7 @@ public:
 
 
     void use();
+    void unUse();
 
 private:
     void requireGood();

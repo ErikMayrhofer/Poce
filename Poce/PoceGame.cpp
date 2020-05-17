@@ -22,6 +22,7 @@ void PoceGame::init() {
     auto error = font->Error();
     if(error){
         std::cout << "Font-Error: " << error << std::endl;
+        return;
     }
     font->FaceSize(72);
     font->Render("Hello World");
@@ -305,7 +306,12 @@ void PoceGame::loop(double deltaMS) {
     gameDataBuffer->write(&game_data, sizeof(game_data), true);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+    glUseProgram(0);
     font->Render("Hello World");
+    std::stringstream s;
+    s << "Hello World" << (deltaMS++);
+    font->Render(s.str().c_str());
+    program->use();
 
 
     TIMER_OUTPUT("Render")
