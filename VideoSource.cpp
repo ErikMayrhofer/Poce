@@ -9,8 +9,8 @@
 
 VideoSource::VideoSource() : capture(0){
     //TODO Don't hardcode
-    capture.set(CV_CAP_PROP_FRAME_WIDTH,1280);
-    capture.set(CV_CAP_PROP_FRAME_HEIGHT,720);
+    capture.set(cv::CAP_PROP_FRAME_WIDTH,1280);
+    capture.set(cv::CAP_PROP_FRAME_HEIGHT,720);
     assert(this->capture.isOpened());
 }
 

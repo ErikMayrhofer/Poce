@@ -1,0 +1,8 @@
+Note: For this to work perfomantly please install cudnn before running make.
+
+If you cannot see `-- Enabling CUDA support for dlib.  DLIB WILL USE CUDA` when running make, you have done something wrong.
+
+Sometimes the versoin of the gcc compiler is a problem, so please compile the whole project using gcc-8
+
+
+Compiling "Debug" is very slow (especially dlib), so please compile on Release
