@@ -41,6 +41,8 @@ int main(int argc, char* argv[]){
     auto lastTick = std::chrono::system_clock::now();
     int a = 0;
     while(!window->shouldClose()){
+        glClear(GL_COLOR_BUFFER_BIT);
+
         auto now = std::chrono::system_clock::now();
         std::chrono::duration<double, std::milli> delta = (now-lastTick);
         lastTick = now;

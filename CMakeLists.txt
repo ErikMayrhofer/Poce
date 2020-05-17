@@ -116,13 +116,13 @@ foreach(dir ${dirs})
     message(STATUS "linkdir+='${dir}'")
 endforeach()
 
-#add_executable(FontExample glad/src/glad.c fontexample.cpp Window.cpp)
-#target_link_libraries(FontExample
-#        OpenGL::GL OpenGL::GLU OpenGL::GLX
-#        OpenGL::OpenGL ${CMAKE_DL_LIBS} glfw dlib
-#        Box2D ${FREETYPE_LIBRARIES} ${FTGL_LIBRARIES} ${GLUT_LIBRARIES})
-#add_dependencies(FontExample box2d-project)
-#add_dependencies(FontExample dlib-project)
+add_executable(FontExample glad/src/glad.c fontexample.cpp Window.cpp)
+target_link_libraries(FontExample
+        OpenGL::GL OpenGL::GLU OpenGL::GLX
+        OpenGL::OpenGL ${CMAKE_DL_LIBS} glfw dlib
+        Box2D ${FREETYPE_LIBRARIES} ${FTGL_LIBRARIES} ${GLUT_LIBRARIES})
+add_dependencies(FontExample box2d-project)
+add_dependencies(FontExample dlib-project)
 
 
 file(COPY shaders DESTINATION .)
